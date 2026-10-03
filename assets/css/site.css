@@ -546,6 +546,9 @@ section { padding-block: clamp(40px, 6vw, 72px); }
 @media (max-width: 960px) {
   .tile.wide, .tile.half { grid-column: span 6; }
   .tile.third { grid-column: span 3; }
+  /* thirds become halves here: a third beside a wide tile, or the last of three, takes the full row */
+  .tile.wide + .tile.third { grid-column: span 6; }
+  .tile.third + .tile.third + .tile.third { grid-column: span 6; }
   .tile.tall { grid-row: auto; }
 }
 @media (max-width: 640px) {
