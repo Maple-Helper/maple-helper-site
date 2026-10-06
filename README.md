@@ -122,7 +122,9 @@ add a Vercel Firewall rate-limit rule on `/api/admin/login`.
 The screenshots are real renders of the app's Qt widgets (`Overlay`, `WishlistDialog`,
 `SettingsDialog`) made with PySide6 and `widget.grab()`, light and dark. `assets/shots/*.webp` show
 the Hebrew app (used by `he/index.html`); `assets/shots/en/*.webp` show the English app (used by
-`index.html`). The English page also has its own social image, `assets/img/og-en.jpg`. They were made
+`index.html`). The English page also has its own social image, `assets/img/og-en.jpg`. When a social image
+changes, bump its `?v=` in the `og:image` and `twitter:image` tags of both pages (`og.jpg?v=095`,
+`og-en.jpg?v=095` now): Facebook, X, Discord, WhatsApp and LinkedIn cache the card by its URL. They were made
 with a throwaway `APPDATA` folder so no real user data is involved, then cropped to the window's
 rounded edge (the app draws a transparent shadow margin around it) and saved as WebP. Re-render them
 when the app's look changes, keeping the same file names and sizes, or update the `width`/`height`
