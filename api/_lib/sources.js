@@ -38,6 +38,17 @@ function assetKind(name) {
   return "other";
 }
 
+/* every release, 100 a page (a single page of 50 would drop the oldest ones once there are more) */
+async function allReleases(api, headers) {
+  const out = [];
+  for (let page = 1; page <= 10; page++) {
+    const batch = await getJson(`${api}/releases?per_page=100&page=${page}`, headers);
+    out.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return out;
+}
+
 async function github() {
   const headers = { Accept: "application/vnd.github+json", "User-Agent": "maplehelper-admin", "X-GitHub-Api-Version": "2022-11-28" };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
@@ -46,7 +57,7 @@ async function github() {
 
   const [repo, releases, runs, views, clones, referrers, paths, rate] = await Promise.all([
     getJson(api, headers),
-    getJson(`${api}/releases?per_page=50`, headers),
+    allReleases(api, headers),
     soft(getJson(`${api}/actions/runs?per_page=8`, headers)),
     traffic ? soft(getJson(`${api}/traffic/views`, headers)) : null,
     traffic ? soft(getJson(`${api}/traffic/clones`, headers)) : null,
@@ -57,7 +68,7 @@ async function github() {
 
   const totals = { windows: 0, mac: 0, portable: 0, kbChecks: 0, kbDownloads: 0, updateChecks: 0, other: 0 };
   const rel = releases
-    .filter((r) => !r.draft)
+    .filter((r) => !r.draft && !r.prerelease)      // kb-seed (a prerelease) only seeds the KB for the builds
     .map((r) => {
       const counts = { windows: 0, mac: 0, portable: 0, kbChecks: 0, kbDownloads: 0, updateChecks: 0, other: 0 };
       for (const a of r.assets || []) {
@@ -126,27 +137,34 @@ async function uptime() {
 
 /* ---------------------------------------------------------------- PostHog */
 
-/* How each number is counted, so that every one of them is exact for what its label says:
+/* How each number is counted (audited 2026-10-12; tools/verify-stats.js re-counts them from the raw events):
 
-   Players come from the app's presence ping (event app_running, maplehelper/presence.py, app 0.15.0+): sent at
+   Players come from the app's presence ping (event app_running, maplehelper/presence.py, app 0.14.0+): sent at
    start and every 10 minutes. It carries three flags kept in the install's own settings file: first_ping (the
    first ping this install ever sent), first_today (the first of its UTC day), first_this_month (the first of its
-   UTC month). A flag is stored only after PostHog took the ping, so each install sends each flag exactly once
-   per period, whatever its version and however often it restarts: counting flags counts installs exactly.
-   Pings before 0.18.1 have a new random id per run (no lasting id), so unique ids are never used for those.
+   UTC month). A flag is stored only after PostHog took the ping, so an install sends each flag once per period
+   whatever its version and however often it restarts.
+   - Pings before 0.18.1 have a new random id per run: those are counted by their flags.
+   - 0.18.1+ pings are sent under the install's lasting id (and carry run_id): those are counted as distinct ids
+     that sent the flag, so a flag sent twice (a post PostHog took while the app saw a timeout) counts once.
+   The country, character and setting breakdowns and "came back" use only 0.18.1+ pings, each install once.
 
-   0.18.1+ pings also carry run_id and are sent under the install's lasting id: the country, character and
-   setting breakdowns and the "came back" share use only those, counting each install once (its latest value).
+   Usage events (question_asked, app_started, ...) are always under the install's lasting id (telemetry.py). They
+   come from every install from 0.18.1; before that only from installs created on 0.15+ that kept them on.
 
-   Usage events (question_asked, app_started, ...) come from installs whose usage stats were on: all of them from
-   0.18.1, before that only the installs that hadn't turned them off.
-
-   Days and months are UTC (the flags' own clock), whatever the PostHog project's time zone is. */
+   Days and months are UTC (the flags' own clock), whatever the PostHog project's time zone is. uniqExact, never
+   the approximate uniq. Every grouped list has its own ORDER BY + LIMIT: without one PostHog returns 100 rows. */
 const NOT_DEV = "coalesce(toString(properties.frozen), '') != 'false'";   // source runs are development
 const PING = `(event = 'app_running' AND ${NOT_DEV})`;
-const NEW_PING = `(${PING} AND coalesce(toString(properties.run_id), '') != '')`;
+const HAS_RUN = "coalesce(toString(properties.run_id), '') != ''";
+const NEW_PING = `(${PING} AND ${HAS_RUN})`;
+const OLD_PING = `(${PING} AND NOT ${HAS_RUN})`;
 const flag = (p) => `toString(properties.${p}) IN ('true', '1')`;
-const UTC_DAY = "toDate(toTimeZone(timestamp, 'UTC'))";
+/* installs that sent flag `p` (within `when`): old pings by count, new pings by distinct lasting id */
+const flagged = (p, when) =>
+  `(countIf(${OLD_PING} AND ${flag(p)} AND ${when}) + uniqExactIf(distinct_id, ${NEW_PING} AND ${flag(p)} AND ${when}))`;
+const UTC_TS = "toTimeZone(timestamp, 'UTC')";
+const UTC_DAY = `toDate(${UTC_TS})`;
 const TODAY = "toDate(toTimeZone(now(), 'UTC'))";
 const THIS_MONTH = `toStartOfMonth(${UTC_DAY}) = toStartOfMonth(${TODAY})`;
 const ONLINE = "timestamp > now() - INTERVAL 11 MINUTE";   // one ping every 10 minutes
@@ -155,8 +173,9 @@ const APP_EVENTS = "('app_started', 'app_updated', 'question_asked', 'voice_used
 const USAGE = `(event IN ${APP_EVENTS} AND ${NOT_DEV})`;
 const SITE_EV = "startsWith(event, 'site_')";
 const LAST30 = "timestamp > now() - INTERVAL 30 DAY";
+const TOP = "ORDER BY count() DESC, v LIMIT 15";
 
-/* breakdown rows are [dimension, value, count]; JS keeps the top 15 of each */
+/* breakdown rows are [dimension, value, count] */
 const str = (p) => `coalesce(nullIf(toString(properties.${p}), ''), '')`;
 const LEVEL = `if(toFloat(properties.char_level) > 0, concat(toString(toInt(floor(toFloat(properties.char_level) / 10)) * 10),
     '-', toString(toInt(floor(toFloat(properties.char_level) / 10)) * 10 + 9)), '')`;
@@ -164,80 +183,84 @@ const LEVEL = `if(toFloat(properties.char_level) > 0, concat(toString(toInt(floo
 const latestPerInstall = (dim, expr) => `
     SELECT '${dim}', v, count() FROM (
       SELECT distinct_id, argMax(${expr}, timestamp) AS v FROM events
-      WHERE ${NEW_PING} AND ${LAST30} GROUP BY distinct_id
-    ) GROUP BY v`;
+      WHERE ${NEW_PING} AND ${LAST30} GROUP BY distinct_id LIMIT 1000000
+    ) GROUP BY v ${TOP}`;
 const counted = (dim, where, expr) => `
-    SELECT '${dim}', ${expr} AS v, count() FROM events WHERE ${where} AND ${LAST30} GROUP BY v`;
+    SELECT '${dim}', ${expr} AS v, count() FROM events WHERE ${where} AND ${LAST30} GROUP BY v ${TOP}`;
 
 const QUERIES = {
   players: `
     SELECT
-      uniqIf(distinct_id, ${ONLINE}),
-      countIf(${flag("first_today")} AND ${UTC_DAY} = ${TODAY}),
-      countIf(${flag("first_this_month")} AND ${THIS_MONTH}),
-      countIf(${flag("first_ping")}),
-      countIf(${flag("first_ping")} AND ${THIS_MONTH})
+      uniqExactIf(distinct_id, ${ONLINE}),
+      ${flagged("first_today", `${UTC_DAY} = ${TODAY}`)},
+      ${flagged("first_this_month", THIS_MONTH)},
+      ${flagged("first_ping", "1")}
     FROM events WHERE ${PING}`,
   usage: `
     SELECT
       countIf(event = 'question_asked' AND ${UTC_DAY} = ${TODAY}),
       countIf(event = 'question_asked' AND ${LAST30}),
       countIf(event = 'question_asked' AND ${LAST30} AND ${flag("screenshot")}),
-      uniqIf(distinct_id, event = 'question_asked' AND ${LAST30}),
+      uniqExactIf(distinct_id, event = 'question_asked' AND ${LAST30}),
       countIf(event = 'voice_used' AND ${LAST30}),
       countIf(event = 'app_started' AND ${flag("fresh_install")} AND ${THIS_MONTH}),
       countIf(event = 'app_updated' AND ${THIS_MONTH}),
       countIf(event = 'app_crashed' AND ${LAST30}),
-      uniqIf(distinct_id, event = 'app_crashed' AND ${LAST30}),
+      uniqExactIf(distinct_id, event = 'app_crashed' AND ${LAST30}),
       countIf(event = 'kb_updated' AND ${LAST30}),
       countIf(event = 'kb_update_failed' AND ${LAST30}),
-      avgIf(toFloat(properties.minutes), event = 'app_closed' AND ${LAST30}),
-      countIf(event = 'app_closed' AND ${LAST30})
+      avgIf(toFloat(properties.minutes), event = 'app_closed' AND ${LAST30} AND toFloat(properties.minutes) IS NOT NULL),
+      countIf(event = 'app_closed' AND ${LAST30} AND toFloat(properties.minutes) IS NOT NULL)
     FROM events WHERE ${USAGE}`,
   site: `
     SELECT
-      uniqIf(distinct_id, timestamp > now() - INTERVAL 5 MINUTE),
-      uniqIf(distinct_id, event = 'site_pageview' AND ${UTC_DAY} = ${TODAY}),
+      uniqExactIf(distinct_id, timestamp > now() - INTERVAL 5 MINUTE),
+      uniqExactIf(distinct_id, event = 'site_pageview' AND ${UTC_DAY} = ${TODAY}),
       countIf(event = 'site_pageview' AND ${UTC_DAY} = ${TODAY}),
-      uniqIf(distinct_id, event = 'site_pageview' AND ${LAST30}),
+      uniqExactIf(distinct_id, event = 'site_pageview' AND ${LAST30}),
       countIf(event = 'site_pageview' AND ${LAST30}),
       countIf(event = 'site_download' AND ${UTC_DAY} = ${TODAY}),
-      countIf(event = 'site_download' AND ${LAST30})
+      countIf(event = 'site_download' AND ${LAST30}),
+      uniqExactIf(distinct_id, event = 'site_download' AND ${LAST30})
     FROM events WHERE ${SITE_EV}`,
-  /* of the installs first seen on 0.18.1+ before today (UTC), how many ran on 2+ UTC days; of those first seen
-     8+ days ago, how many ran in the last 7 days */
+  /* by 0.18.1+ lasting ids: of the installs first seen 2+ UTC days ago, how many ran on 2+ days; of those first
+     seen 8+ days ago, how many ran in the last 7 UTC days (today included) */
   retention: `
     SELECT
-      countIf(first < ${TODAY}), countIf(first < ${TODAY} AND days > 1),
-      countIf(first < ${TODAY} - 7), countIf(first < ${TODAY} - 7 AND last >= ${TODAY} - 6)
+      countIf(first <= ${TODAY} - 2), countIf(first <= ${TODAY} - 2 AND days > 1),
+      countIf(first <= ${TODAY} - 8), countIf(first <= ${TODAY} - 8 AND last >= ${TODAY} - 6)
     FROM (
-      SELECT distinct_id, min(${UTC_DAY}) AS first, max(${UTC_DAY}) AS last, uniq(${UTC_DAY}) AS days
-      FROM events WHERE ${NEW_PING} GROUP BY distinct_id
+      SELECT distinct_id, min(${UTC_DAY}) AS first, max(${UTC_DAY}) AS last, uniqExact(${UTC_DAY}) AS days
+      FROM events WHERE ${NEW_PING} GROUP BY distinct_id LIMIT 1000000
     )`,
   daily: `
     SELECT ${UTC_DAY} AS day,
-      countIf(${PING} AND ${flag("first_today")}),
-      countIf(${PING} AND ${flag("first_ping")}),
+      ${flagged("first_today", "1")},
       countIf(event = 'question_asked' AND ${NOT_DEV}),
       countIf(event = 'app_started' AND ${NOT_DEV} AND ${flag("fresh_install")}),
       countIf(event = 'app_updated' AND ${NOT_DEV}),
-      uniqIf(distinct_id, event = 'site_pageview'),
+      uniqExactIf(distinct_id, event = 'site_pageview'),
       countIf(event = 'site_download')
     FROM events
-    WHERE ${LAST30} AND (${PING} OR ${USAGE} OR ${SITE_EV})
-    GROUP BY day ORDER BY day`,
+    WHERE ${UTC_DAY} >= ${TODAY} - 29 AND (${PING} OR ${USAGE} OR ${SITE_EV})
+    GROUP BY day ORDER BY day LIMIT 100`,
   hourly: `
-    SELECT toStartOfHour(timestamp) AS hour, uniqIf(distinct_id, ${SITE_EV}), uniqIf(distinct_id, ${PING})
+    SELECT formatDateTime(toStartOfHour(${UTC_TS}), '%Y-%m-%dT%H:00:00Z') AS hour,
+      uniqExactIf(distinct_id, ${SITE_EV}), uniqExactIf(distinct_id, ${PING})
     FROM events
-    WHERE timestamp > now() - INTERVAL 48 HOUR AND (${SITE_EV} OR ${PING})
-    GROUP BY hour ORDER BY hour`,
+    WHERE timestamp > now() - INTERVAL 49 HOUR AND (${SITE_EV} OR ${PING})
+    GROUP BY hour ORDER BY hour LIMIT 100`,
   b_players: `
-    SELECT 'version_now', toString(properties.app_version) AS v, uniq(distinct_id) FROM events
-      WHERE ${PING} AND ${ONLINE} GROUP BY v
+    SELECT 'version_now', toString(properties.app_version) AS v, uniqExact(distinct_id) FROM events
+      WHERE ${PING} AND ${ONLINE} GROUP BY v ORDER BY uniqExact(distinct_id) DESC, v LIMIT 50
     UNION ALL SELECT 'version_today', toString(properties.app_version) AS v, count() FROM events
-      WHERE ${PING} AND ${flag("first_today")} AND ${UTC_DAY} = ${TODAY} GROUP BY v
+      WHERE ${OLD_PING} AND ${flag("first_today")} AND ${UTC_DAY} = ${TODAY} GROUP BY v ORDER BY count() DESC, v LIMIT 50
+    UNION ALL SELECT 'version_today_new', toString(properties.app_version) AS v, uniqExact(distinct_id) FROM events
+      WHERE ${NEW_PING} AND ${flag("first_today")} AND ${UTC_DAY} = ${TODAY} GROUP BY v ORDER BY uniqExact(distinct_id) DESC, v LIMIT 50
     UNION ALL SELECT 'os_month', toString(properties.$os) AS v, count() FROM events
-      WHERE ${PING} AND ${flag("first_this_month")} AND ${THIS_MONTH} GROUP BY v`,
+      WHERE ${OLD_PING} AND ${flag("first_this_month")} AND ${THIS_MONTH} GROUP BY v ORDER BY count() DESC, v LIMIT 50
+    UNION ALL SELECT 'os_month_new', toString(properties.$os) AS v, uniqExact(distinct_id) FROM events
+      WHERE ${NEW_PING} AND ${flag("first_this_month")} AND ${THIS_MONTH} GROUP BY v ORDER BY uniqExact(distinct_id) DESC, v LIMIT 50`,
   b_installs: [
     latestPerInstall("country", str("$geoip_country_name")),
     latestPerInstall("char_level", LEVEL),
@@ -314,15 +337,21 @@ async function posthog() {
       (breakdowns[dim] = breakdowns[dim] || []).push({ value: value || "", count: num(count) });
     }
   });
+  /* old pings (counted by flag) and 0.18.1+ installs (by id) of the same list: added up, one row per value */
+  for (const [into, from] of [["version_today", "version_today_new"], ["os_month", "os_month_new"]]) {
+    for (const it of breakdowns[from] || []) {
+      const row = (breakdowns[into] = breakdowns[into] || []).find((x) => x.value === it.value);
+      if (row) row.count += it.count; else breakdowns[into].push({ ...it });
+    }
+    delete breakdowns[from];
+  }
   for (const k in breakdowns) breakdowns[k].sort((a, b) => b.count - a.count).splice(15);
 
   return {
     configured: true,
     errors,
     siteKeySet: !!process.env.POSTHOG_PROJECT_KEY,
-    players: p ? {
-      online: num(p[0]), today: num(p[1]), month: num(p[2]), ever: num(p[3]), firstSeenMonth: num(p[4]),
-    } : null,
+    players: p ? { online: num(p[0]), today: num(p[1]), month: num(p[2]), ever: num(p[3]) } : null,
     usage: u ? {
       questionsToday: num(u[0]), questions30d: num(u[1]), questionsWithScreenshot30d: num(u[2]), askers30d: num(u[3]),
       voice30d: num(u[4]), freshInstallsMonth: num(u[5]), updatesMonth: num(u[6]), crashes30d: num(u[7]),
@@ -331,14 +360,14 @@ async function posthog() {
     } : null,
     site: st ? {
       online: num(st[0]), visitorsToday: num(st[1]), pageviewsToday: num(st[2]), visitors30d: num(st[3]),
-      pageviews30d: num(st[4]), downloadsToday: num(st[5]), downloads30d: num(st[6]),
+      pageviews30d: num(st[4]), downloadsToday: num(st[5]), downloads30d: num(st[6]), downloaders30d: num(st[7]),
     } : null,
     retention: rt ? {
       eligible: num(rt[0]), cameBack: num(rt[1]), eligible7: num(rt[2]), active7: num(rt[3]),
     } : null,
     daily: (res.daily || []).map((r) => ({
-      day: String(r[0]).slice(0, 10), players: num(r[1]), firstPings: num(r[2]), questions: num(r[3]),
-      installs: num(r[4]), updates: num(r[5]), visitors: num(r[6]), downloads: num(r[7]),
+      day: String(r[0]).slice(0, 10), players: num(r[1]), questions: num(r[2]),
+      installs: num(r[3]), updates: num(r[4]), visitors: num(r[5]), downloads: num(r[6]),
     })),
     hourly: (res.hourly || []).map((r) => ({ hour: r[0], siteVisitors: num(r[1]), appRuns: num(r[2]) })),
     breakdowns,

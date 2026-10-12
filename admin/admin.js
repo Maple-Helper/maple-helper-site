@@ -31,28 +31,28 @@
     monitoring: ["Monitoring", "ניטור"],
     uptime_checks: ["Uptime checks", "בדיקות זמינות"],
     checked_each: ["checked on each refresh", "נבדק בכל רענון"],
-    builds: ["Builds and releases", "בילדים וגרסאות"],
+    builds: ["Builds and releases", "בניות וגרסאות"],
     deploys: ["Site deployments", "פריסות האתר"],
     recent: ["Recent activity", "פעילות אחרונה"],
     last24: ["last 24 hours", "24 השעות האחרונות"],
-    dl_note: ["These are GitHub's raw download counts. The Windows installer count includes in-app updates (every update downloads it again), so it is not a count of people. <b>Update checks</b> are Windows apps fetching <code>SHA256SUMS.txt</code> before updating themselves; <b>game-data checks</b> are running apps fetching <code>kb-manifest.json</code>.",
-      "אלה מספרי ההורדות הגולמיים של GitHub. מספר ההורדות של תוכנת ההתקנה ל-Windows כולל גם עדכונים מתוך האפליקציה (כל עדכון מוריד אותה שוב), ולכן הוא לא מספר אנשים. <b>בדיקות עדכון</b> הן אפליקציות Windows שמורידות את <code>SHA256SUMS.txt</code> לפני שהן מעדכנות את עצמן; <b>בדיקות נתוני משחק</b> הן אפליקציות פתוחות שמורידות את <code>kb-manifest.json</code>."],
+    dl_note: ["These are GitHub's raw download counts. The Windows installer count includes in-app updates (every update downloads it again), so it is not a count of people; the release workflow also downloads it once per release. <b>Update checks</b> are Windows apps fetching <code>SHA256SUMS.txt</code> before updating themselves. Game-data checks and downloads (<code>kb-manifest.json</code>, <code>kb.zip</code>) are not shown: the nightly game-data update uploads those files again, which resets their counts, and the build workflows download them too.",
+      "אלה מספרי ההורדות הגולמיים של GitHub. מספר ההורדות של תוכנת ההתקנה ל-Windows כולל גם עדכונים מתוך האפליקציה (כל עדכון מוריד אותה שוב), ולכן הוא לא מספר אנשים; גם תהליך השחרור מוריד אותה פעם אחת בכל גרסה. <b>בדיקות עדכון</b> הן אפליקציות Windows שמורידות את <code>SHA256SUMS.txt</code> לפני שהן מעדכנות את עצמן. בדיקות והורדות של נתוני המשחק (<code>kb-manifest.json</code>, <code>kb.zip</code>) לא מוצגות: העדכון הלילי מעלה את הקבצים האלה מחדש, וזה מאפס את המונים שלהם, וגם תהליכי הבנייה מורידים אותם."],
     how_counted: ["How these are counted", "איך זה נספר"],
-    players_note: ["<b>Players</b> are counted by the app's \"running\" ping (version 0.15.0 and up; every 10 minutes). Each install stores three flags in its own settings file and sends each one exactly once: the first ping it ever sent, the first of each UTC day, the first of each UTC month. Counting those flags counts every install exactly once, whatever its version and however often it restarts. Installs still on a version older than 0.15.0 send no ping and are not counted. <b>Country, character and settings</b> are counted once per install (its latest value) among installs on 0.18.1 and up, which ping under a lasting random id. <b>Questions, new installs and updates</b> come from the usage stats: every install from 0.18.1, before that only installs that hadn't turned them off.",
-      "<b>שחקנים</b> נספרים לפי פינג \"האפליקציה רצה\" (מגרסה 0.15.0, כל 10 דקות). כל התקנה שומרת שלושה דגלים בקובץ ההגדרות שלה ושולחת כל אחד בדיוק פעם אחת: הפינג הראשון אי פעם, הראשון בכל יום (UTC), הראשון בכל חודש (UTC). ספירת הדגלים סופרת כל התקנה בדיוק פעם אחת, בכל גרסה ולא משנה כמה פעמים היא הופעלה מחדש. התקנות שעדיין בגרסה ישנה מ-0.15.0 לא שולחות פינג ולא נספרות. <b>מדינה, דמות והגדרות</b> נספרים פעם אחת לכל התקנה (הערך האחרון שלה) מבין ההתקנות בגרסה 0.18.1 ומעלה, שמזהות את עצמן במזהה אקראי קבוע. <b>שאלות, התקנות חדשות ועדכונים</b> מגיעים מנתוני השימוש: מכל ההתקנות מגרסה 0.18.1, ולפני כן רק מהתקנות שלא כיבו אותם."],
+    players_note: ["<b>Players</b> are counted by the app's \"running\" ping (version 0.14.0 and up; every 10 minutes). Each install stores three flags in its own settings file and sends each one once per period: the first ping it ever sent, the first of each UTC day, the first of each UTC month. Counting those flags counts every install once, whatever its version and however often it restarts. Rarely a flag arrives twice (PostHog took a ping while the app saw a timeout, or the settings file could not be saved): from 0.18.1 that still counts once, on older versions it counts twice. Not counted: installs still on 0.13.0 or older, installs that had switched the ping off in 0.14.0–0.18.0 (until they update), apps that are offline the whole day, players who never finished the first-run setup, and the developers' own source runs. One person with two computers counts twice: these are installs, not people. A computer whose clock is set to a wrong date files its days by that date. <b>Country, character and settings</b> are counted once per install (its latest value) among installs on 0.18.1 and up, which ping under a lasting random id. <b>Questions, new installs and updates</b> come from the usage stats: every install from 0.18.1; before that only installs created on 0.15.0 or later that kept them on. A few events are lost when an app is closed right after they happen.",
+      "<b>שחקנים</b> נספרים לפי פינג \"האפליקציה רצה\" (מגרסה 0.14.0, כל 10 דקות). כל התקנה שומרת שלושה דגלים בקובץ ההגדרות שלה ושולחת כל אחד פעם אחת בכל תקופה: הפינג הראשון אי פעם, הראשון בכל יום (UTC), הראשון בכל חודש (UTC). ספירת הדגלים סופרת כל התקנה פעם אחת, בכל גרסה ולא משנה כמה פעמים היא הופעלה מחדש. לעיתים רחוקות דגל מגיע פעמיים (PostHog קיבל פינג בזמן שהאפליקציה חשבה שהשליחה נכשלה, או שקובץ ההגדרות לא נשמר): מגרסה 0.18.1 זה עדיין נספר פעם אחת, בגרסאות ישנות יותר זה נספר פעמיים. לא נספרים: התקנות שעדיין בגרסה 0.13.0 ומטה, התקנות שכיבו את הפינג בגרסאות 0.14.0–0.18.0 (עד שיתעדכנו), אפליקציות שלא מחוברות לאינטרנט כל היום, שחקנים שלא סיימו את ההגדרה הראשונית, והרצות פיתוח של המפתחים. אדם אחד עם שני מחשבים נספר פעמיים: אלה התקנות, לא אנשים. מחשב שהשעון שלו מכוון לתאריך שגוי נרשם לפי התאריך הזה. <b>מדינה, דמות והגדרות</b> נספרים פעם אחת לכל התקנה (הערך האחרון שלה) מבין ההתקנות בגרסה 0.18.1 ומעלה, שמזהות את עצמן במזהה אקראי קבוע. <b>שאלות, התקנות חדשות ועדכונים</b> מגיעים מנתוני השימוש: מכל ההתקנות מגרסה 0.18.1; לפני כן רק מהתקנות שנוצרו בגרסה 0.15.0 ומעלה ולא כיבו אותם. מעט אירועים הולכים לאיבוד כשהאפליקציה נסגרת מיד אחריהם."],
     site_note: ["A <b>visit</b> is one browser tab (a random id kept for the tab, no cookies), so one person with two tabs counts twice. Visitors with Do Not Track are not counted.",
       "<b>ביקור</b> הוא לשונית דפדפן אחת (מזהה אקראי שנשמר ללשונית, בלי עוגיות), כך שאדם אחד עם שתי לשוניות נספר פעמיים. מבקרים עם Do Not Track לא נספרים."],
     // tiles
     visitors_online: ["Visitors online", "מבקרים באתר עכשיו"],
     visitors_online_sub: ["site tabs, last 5 minutes", "לשוניות באתר, 5 הדקות האחרונות"],
     players_online: ["Players online", "שחקנים מחוברים"],
-    players_online_sub: ["apps that pinged in the last 11 minutes", "אפליקציות ששלחו פינג ב-11 הדקות האחרונות"],
+    players_online_sub: ["apps that pinged in the last 11 minutes (before 0.18.1 a restart can count twice)", "אפליקציות ששלחו פינג ב-11 הדקות האחרונות (לפני 0.18.1 הפעלה מחדש עלולה להיספר פעמיים)"],
     players_today: ["Players today", "שחקנים היום"],
     players_today_sub: ["installs that ran today (UTC)", "התקנות שרצו היום (UTC)"],
     players_month: ["Players this month", "שחקנים החודש"],
     players_month_sub: ["installs that ran since the 1st (UTC)", "התקנות שרצו מתחילת החודש (UTC)"],
     players_ever: ["Players ever", "שחקנים מאז ומעולם"],
-    players_ever_sub: ["installs that ever ran 0.15.0+", "התקנות שאי פעם הריצו 0.15.0 ומעלה"],
+    players_ever_sub: ["installs that ever ran 0.14.0+", "התקנות שאי פעם הריצו 0.14.0 ומעלה"],
     latest_release: ["Latest release", "הגרסה האחרונה"],
     latest_sub: ["{ago} · {n} downloads (incl. updates)", "{ago} · {n} הורדות (כולל עדכונים)"],
     win_installer: ["Windows installer", "תוכנת התקנה ל-Windows"],
@@ -68,9 +68,9 @@
     app_updates: ["App updates", "עדכוני אפליקציה"],
     app_updates_sub: ["first start on a new version, this month", "הפעלה ראשונה בגרסה חדשה, החודש"],
     came_back: ["Came back", "חזרו"],
-    came_back_sub: ["{a} of {b} installs (0.18.1+) ran on 2+ days", "{a} מתוך {b} התקנות (0.18.1+) רצו ב-2 ימים או יותר"],
+    came_back_sub: ["{a} of {b} installs (0.18.1+, first seen 2+ days ago) ran on 2+ days", "{a} מתוך {b} התקנות (0.18.1+, נראו לראשונה לפני יומיים ויותר) רצו ב-2 ימים או יותר"],
     still_active: ["Still active after a week", "עדיין פעילים אחרי שבוע"],
-    still_active_sub: ["{a} of {b} installs (0.18.1+) first seen 8+ days ago ran in the last 7 days", "{a} מתוך {b} התקנות (0.18.1+) שנראו לראשונה לפני 8+ ימים רצו ב-7 הימים האחרונים"],
+    still_active_sub: ["{a} of {b} installs (0.18.1+, first seen 8+ days ago) ran in the last 7 UTC days", "{a} מתוך {b} התקנות (0.18.1+, נראו לראשונה לפני 8 ימים ויותר) רצו ב-7 ימי ה-UTC האחרונים"],
     questions_today: ["Questions today", "שאלות היום"],
     questions_today_sub: ["UTC day", "יום UTC"],
     questions: ["Questions", "שאלות"],
@@ -93,7 +93,7 @@
     new_installs_s: ["New installs", "התקנות חדשות"],
     updates_s: ["Updates", "עדכונים"],
     runs_per_hour: ["Apps running per hour", "אפליקציות פועלות לפי שעה"],
-    runs_per_hour_sub: ["last 48 hours · before 0.18.1 a restart counts again", "48 השעות האחרונות · לפני 0.18.1 הפעלה מחדש נספרת שוב"],
+    runs_per_hour_sub: ["last 48 hours (UTC) · before 0.18.1 each restart counts as another app", "48 השעות האחרונות (UTC) · לפני 0.18.1 כל הפעלה מחדש נספרת כאפליקציה נוספת"],
     apps_running: ["Apps running", "אפליקציות פועלות"],
     questions_per_day: ["Questions per day", "שאלות ביום"],
     show_table: ["Show table", "הצגת טבלה"],
@@ -120,7 +120,7 @@
     times30: ["times, 30 days", "פעמים, 30 יום"],
     crashes_list: ["Crashes", "קריסות"],
     crash_sub: ["error @ file:line, 30 days", "שגיאה @ קובץ:שורה, 30 יום"],
-    kb_fails: ["Game-data update failures", "כשלונות בעדכון נתוני המשחק"],
+    kb_fails: ["Game-data update failures", "כישלונות בעדכון נתוני המשחק"],
     reason30: ["reason, 30 days", "סיבה, 30 יום"],
     none_value: ["(none)", "(אין)"],
     unknown_value: ["(unknown)", "(לא ידוע)"],
@@ -131,10 +131,10 @@
     page_views30: ["Page views", "צפיות בדפים"],
     dl_clicks_today: ["Download clicks today", "לחיצות הורדה היום"],
     dl_clicks: ["Download clicks", "לחיצות הורדה"],
-    of_visits: ["{p} of visits, 30 days", "{p} מהביקורים, 30 יום"],
+    of_visits: ["{p} of visits clicked one, 30 days", "{p} מהביקורים כללו לחיצה, 30 יום"],
     utc_day: ["UTC day", "יום UTC"],
     visits_per_hour: ["Visits per hour", "ביקורים לפי שעה"],
-    hours48: ["last 48 hours", "48 השעות האחרונות"],
+    hours48: ["last 48 hours (UTC)", "48 השעות האחרונות (UTC)"],
     site_visits_s: ["Site visits", "ביקורים באתר"],
     visits_dl_day: ["Visits and download clicks per day", "ביקורים ולחיצות הורדה ביום"],
     visits_s: ["Visits", "ביקורים"],
@@ -163,7 +163,8 @@
     needs_posthog: ["Needs PostHog (see above).", "דרוש PostHog (ראו למעלה)."],
     unavailable: ["Unavailable.", "לא זמין."], no_runs: ["No workflow runs visible.", "לא נראות הרצות."],
     gh_unavailable: ["GitHub data unavailable.", "נתוני GitHub לא זמינים."],
-    this_dashboard: ["This dashboard", "הדשבורד הזה"],
+    this_dashboard: ["This dashboard", "הדשבורד הזה"], region: ["region", "אזור"],
+    deployment: ["Deployment", "פריסה"], state: ["State", "מצב"], target: ["Target", "יעד"], build: ["Build", "בנייה"],
     answered: ["answered by {x}", "ענה {x}"], lv: ["level {n}", "רמה {n}"],
     updated: ["Updated {t}", "עודכן ב-{t}"], refresh_failed: ["Refresh failed ({s})", "הרענון נכשל ({s})"],
     offline: ["Offline? Refresh failed.", "אין חיבור? הרענון נכשל."],
@@ -171,7 +172,7 @@
     wrong_password: ["Wrong password.", "סיסמה שגויה."],
     too_many: ["Too many attempts. Try again in 15 minutes.", "יותר מדי ניסיונות. נסו שוב בעוד 15 דקות."],
     signin_failed: ["Sign-in failed ({s}).", "הכניסה נכשלה ({s})."], network_error: ["Network error.", "שגיאת רשת."],
-    just_now: ["just now", "עכשיו"], min_ago: ["{n} min ago", "לפני {n} דק'"], h_ago: ["{n} h ago", "לפני {n} שע'"], d_ago: ["{n} d ago", "לפני {n} ימים"],
+    just_now: ["just now", "עכשיו"], min_ago: ["{n} min ago", "לפני {n} דק'"], h_ago: ["{n} h ago", "לפני {n} שע'"], d_ago: ["{n} d ago", "לפני {n} ימים"], d_ago1: ["1 d ago", "לפני יום"],
     lang_switch: ["עברית", "English"],
   };
   var EVENTS = {
@@ -218,7 +219,8 @@
     if (s < 60) return t("just_now");
     if (s < 3600) return t("min_ago", { n: Math.round(s / 60) });
     if (s < 86400) return t("h_ago", { n: Math.round(s / 3600) });
-    return t("d_ago", { n: Math.round(s / 86400) });
+    var days = Math.round(s / 86400);
+    return days === 1 ? t("d_ago1") : t("d_ago", { n: days });
   }
   function loc() { return lang === "he" ? "he" : "en"; }
   /* a UTC day ("2026-10-12"): shown as that day, not shifted by the browser's time zone */
@@ -228,7 +230,7 @@
   function hourShort(d) {
     return new Date(d).toLocaleString(loc(), { weekday: "short", hour: "numeric" });
   }
-  function pct(a, b) { return b ? Math.round((a / b) * 100) + "%" : "–"; }
+  function pct(a, b) { return b && a != null ? Math.round((a / b) * 100) + "%" : "–"; }
   function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
   function api(path, opts) {
@@ -458,16 +460,33 @@
     }
     return out;
   }
+  /* the last 48 whole UTC hours, an hour with no events as 0 (rows' hour: "2026-10-12T14:00:00Z") */
+  function last48(rows) {
+    var map = {};
+    rows.forEach(function (r) { map[String(r.hour).slice(0, 13)] = r; });
+    var h0 = new Date(); h0.setUTCMinutes(0, 0, 0);
+    var out = [];
+    for (var i = 47; i >= 0; i--) {
+      var iso = new Date(h0.getTime() - i * 3600000).toISOString();
+      out.push(map[iso.slice(0, 13)] || { hour: iso });
+    }
+    return out;
+  }
   var val = function (rows, k) { return rows.map(function (r) { return r[k] || 0; }); };
 
   /* ---------------------------------------------------------------- sections */
 
   function setupHint(what) {
+    var he = lang === "he";
     return {
-      github: "Set <code>GITHUB_TOKEN</code> (a fine-grained token with read access to the repository's Administration or Traffic) to see repository views, clones and referrers, and to lift the 60 calls/hour limit.",
-      posthog: "Set <code>POSTHOG_PERSONAL_API_KEY</code> (scope: query:read) and <code>POSTHOG_PROJECT_ID</code> in Vercel to read app and site stats. US cloud is the default; for EU set <code>POSTHOG_HOST</code> and <code>POSTHOG_INGEST_HOST</code>.",
-      site: "Set <code>POSTHOG_PROJECT_KEY</code> (the project's phc_ key) in Vercel to start counting site visits. Nothing is recorded until then.",
-      vercel: "Set <code>VERCEL_API_TOKEN</code> and <code>VERCEL_PROJECT</code> (project id or name; add <code>VERCEL_TEAM_ID</code> for a team project) to list deployments.",
+      github: he ? "כדי לראות צפיות, שכפולים ומקורות הגעה למאגר, ולהסיר את מגבלת 60 הקריאות בשעה, יש להגדיר <code>GITHUB_TOKEN</code> (token מסוג fine-grained עם הרשאת קריאה ל-Administration או ל-Traffic של המאגר)."
+        : "Set <code>GITHUB_TOKEN</code> (a fine-grained token with read access to the repository's Administration or Traffic) to see repository views, clones and referrers, and to lift the 60 calls/hour limit.",
+      posthog: he ? "כדי לקרוא את נתוני האפליקציה והאתר יש להגדיר ב-Vercel את <code>POSTHOG_PERSONAL_API_KEY</code> (הרשאה: query:read) ואת <code>POSTHOG_PROJECT_ID</code>."
+        : "Set <code>POSTHOG_PERSONAL_API_KEY</code> (scope: query:read) and <code>POSTHOG_PROJECT_ID</code> in Vercel to read app and site stats. US cloud is the default; for EU set <code>POSTHOG_HOST</code> and <code>POSTHOG_INGEST_HOST</code>.",
+      site: he ? "כדי להתחיל לספור ביקורים באתר יש להגדיר ב-Vercel את <code>POSTHOG_PROJECT_KEY</code> (מפתח ה-phc_ של הפרויקט). עד אז לא נרשם כלום."
+        : "Set <code>POSTHOG_PROJECT_KEY</code> (the project's phc_ key) in Vercel to start counting site visits. Nothing is recorded until then.",
+      vercel: he ? "כדי לראות את רשימת הפריסות יש להגדיר את <code>VERCEL_API_TOKEN</code> ואת <code>VERCEL_PROJECT</code> (ו-<code>VERCEL_TEAM_ID</code> לפרויקט של צוות)."
+        : "Set <code>VERCEL_API_TOKEN</code> and <code>VERCEL_PROJECT</code> (project id or name; add <code>VERCEL_TEAM_ID</code> for a team project) to list deployments.",
     }[what];
   }
 
@@ -509,8 +528,6 @@
       tile("macOS", fmt(tt.mac), "MapleHelper-macOS.dmg"),
       tile(t("portable"), fmt(tt.portable), t("win_zip")),
       tile(t("update_checks"), fmt(tt.updateChecks), "SHA256SUMS.txt"),
-      tile(t("kb_checks"), fmt(tt.kbChecks), "kb-manifest.json"),
-      tile(t("kb_downloads"), fmt(tt.kbDownloads), "kb.zip"),
     ].join("");
     var rel = gh.releases.slice(0, 24).reverse();
     chartCard(host, lang === "he" ? "הורדות לפי גרסה" : "Downloads per release", lang === "he" ? rel.length + " הגרסאות האחרונות" : rel.length + " most recent releases", "column",
@@ -520,12 +537,9 @@
         { name: "macOS", color: "--s2", values: rel.map(function (r) { return r.counts.mac; }) },
         { name: t("portable"), color: "--s3", values: rel.map(function (r) { return r.counts.portable; }) },
       ]);
-    chartCard(host, lang === "he" ? "בדיקות של אפליקציות פעילות, לפי גרסה" : "Installs checking in, per release", "", "column",
+    chartCard(host, lang === "he" ? "בדיקות עדכון, לפי גרסה" : "Update checks, per release", "SHA256SUMS.txt", "column",
       rel.map(function (r) { return r.tag; }),
-      [
-        { name: t("kb_checks"), color: "--s1", values: rel.map(function (r) { return r.counts.kbChecks; }) },
-        { name: t("update_checks"), color: "--s2", values: rel.map(function (r) { return r.counts.updateChecks; }) },
-      ]);
+      [{ name: t("update_checks"), color: "--s1", values: rel.map(function (r) { return r.counts.updateChecks; }) }]);
   }
 
   function renderApp(d) {
@@ -537,7 +551,6 @@
       tile(t("players_today"), fmt(p.today), t("players_today_sub")),
       tile(t("players_month"), fmt(p.month), t("players_month_sub")),
       tile(t("players_ever"), fmt(p.ever), t("players_ever_sub")),
-      tile(t("new_month"), fmt(p.firstSeenMonth), t("new_month_sub")),
       tile(t("fresh_installs"), fmt(u.freshInstallsMonth), t("fresh_installs_sub")),
       tile(t("app_updates"), fmt(u.updatesMonth), t("app_updates_sub")),
       tile(t("came_back"), pct(ret.cameBack, ret.eligible), t("came_back_sub", { a: fmt(ret.cameBack), b: fmt(ret.eligible) })),
@@ -555,14 +568,13 @@
     var days = lastDays(ph.daily || [], 30, "day");
     var labels = days.map(function (r) { return r.day; });
     chartCard(grid, t("players_per_day"), t("players_per_day_sub"), "line", labels,
-      [{ name: t("players_s"), color: "--s1", values: val(days, "players") },
-       { name: t("first_pings"), color: "--s2", values: val(days, "firstPings") }], dateShort);
+      [{ name: t("players_s"), color: "--s1", values: val(days, "players") }], dateShort);
     chartCard(grid, t("installs_updates_day"), "", "column", labels,
       [{ name: t("new_installs_s"), color: "--s1", values: val(days, "installs") },
        { name: t("updates_s"), color: "--s2", values: val(days, "updates") }], dateShort);
-    var hours = (ph.hourly || []).slice(-48);
+    var hours = last48(ph.hourly || []);
     chartCard(grid, t("runs_per_hour"), t("runs_per_hour_sub"), "line", hours.map(function (r) { return r.hour; }),
-      [{ name: t("apps_running"), color: "--s1", values: hours.map(function (r) { return r.appRuns; }) }], hourShort);
+      [{ name: t("apps_running"), color: "--s1", values: val(hours, "appRuns") }], hourShort);
     chartCard(grid, t("questions_per_day"), "", "column", labels,
       [{ name: t("questions"), color: "--s1", values: val(days, "questions") }], dateShort);
     var b = ph.breakdowns || {};
@@ -595,19 +607,12 @@
       tile(t("visits30"), fmt(s.visitors30d), t("days30")),
       tile(t("page_views30"), fmt(s.pageviews30d), t("days30")),
       tile(t("dl_clicks_today"), fmt(s.downloadsToday), t("utc_day")),
-      tile(t("dl_clicks"), fmt(s.downloads30d), t("of_visits", { p: pct(s.downloads30d, s.visitors30d) })),
+      tile(t("dl_clicks"), fmt(s.downloads30d), t("of_visits", { p: pct(s.downloaders30d, s.visitors30d) })),
     ].join("") + "</div>");
     var grid = document.createElement("div");
     grid.className = "grid2";
     box.appendChild(grid);
-    var hours = [];
-    var hmap = {};
-    (ph.hourly || []).forEach(function (r) { hmap[new Date(r.hour).getTime()] = r; });
-    var h0 = new Date(); h0.setMinutes(0, 0, 0);
-    for (var i = 47; i >= 0; i--) {
-      var ts = h0.getTime() - i * 3600000;
-      hours.push(hmap[ts] || { hour: new Date(ts).toISOString() });
-    }
+    var hours = last48(ph.hourly || []);
     chartCard(grid, t("visits_per_hour"), t("hours48"), "line", hours.map(function (r) { return r.hour; }),
       [{ name: t("site_visits_s"), color: "--s1", values: val(hours, "siteVisitors") }], hourShort);
     var days = lastDays(ph.daily || [], 30, "day");
@@ -647,7 +652,7 @@
     chartCard(grid, t("repo_views"), t("views14"), "line",
       v.map(function (x) { return x.timestamp; }),
       [{ name: t("repo_views"), color: "--s1", values: v.map(function (x) { return x.count; }) },
-       { name: "Unique", color: "--s2", values: v.map(function (x) { return x.uniques; }) }], dateShort);
+       { name: lang === "he" ? "מבקרים ייחודיים" : "Unique visitors", color: "--s2", values: v.map(function (x) { return x.uniques; }) }], dateShort);
     var c = (tr.clones && tr.clones.daily) || [];
     chartCard(grid, t("repo_clones"), "", "column",
       c.map(function (x) { return x.timestamp; }),
@@ -685,10 +690,10 @@
     var v = d.vercel || {};
     var rt = v.runtime || {};
     var runtime = '<p class="muted small" style="margin:10px 0 0">' + esc(t("this_dashboard")) + ": " + esc(rt.env || "?") +
-      (rt.region ? " · region " + esc(rt.region) : "") + (rt.commit ? " · commit " + esc(rt.commit) : "") + " · Node " + esc(rt.node || "") + "</p>";
+      (rt.region ? " · " + t("region") + " " + esc(rt.region) : "") + (rt.commit ? " · commit " + esc(rt.commit) : "") + " · Node " + esc(rt.node || "") + "</p>";
     if (!v.configured) { $("deploys").innerHTML = empty(setupHint("vercel")) + runtime; return; }
     if (v.error) { $("deploys").innerHTML = empty(esc(v.error)) + runtime; return; }
-    $("deploys").innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Deployment</th><th>State</th><th>Target</th><th>Branch</th><th class="num">Build</th><th>When</th></tr></thead><tbody>' +
+    $("deploys").innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>' + t("deployment") + "</th><th>" + t("state") + "</th><th>" + t("target") + "</th><th>" + t("branch") + '</th><th class="num">' + t("build") + "</th><th>" + t("when") + "</th></tr></thead><tbody>" +
       v.deployments.map(function (x) {
         var build = x.ready && x.created ? Math.round((x.ready - x.created) / 1000) + " s" : "–";
         return '<tr><td class="wrap-cell"><a href="' + esc(x.inspector || "https://" + x.url) + '" target="_blank" rel="noopener">' + esc(x.message || x.url) +
@@ -710,7 +715,7 @@
           clean(r.window), clean(r.error), clean(r.job) && r.job + (clean(r.level) ? " · " + t("lv", { n: r.level }) : ""),
           clean(r.page), clean(r.target), clean(r.country)].filter(Boolean).join(" · ");
         var name = EVENTS[r.event] ? EVENTS[r.event][lang === "he" ? 1 : 0] : r.event;
-        return "<tr><td>" + ago(r.at) + "</td><td>" + esc(name) + '</td><td><code>' + esc(r.who) + '</code></td><td dir="auto">' + esc(det) + "</td></tr>";
+        return "<tr><td>" + ago(r.at) + "</td><td>" + esc(name) + '</td><td><code>' + esc(r.who) + '</code></td><td><bdi>' + esc(det) + "</bdi></td></tr>";
       }).join("") + "</tbody></table></div>";
   }
 

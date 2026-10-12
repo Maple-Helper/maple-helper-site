@@ -131,6 +131,7 @@ details.how .note { margin-top: 8px; max-width: none; line-height: 1.6; }
 
 /* ---------------------------------------------------------------- charts */
 .chart { position: relative; width: 100%; direction: ltr; }   /* time runs left to right in both languages */
+[dir="rtl"] .chart .tbl-wrap, [dir="rtl"] .chart .legend { direction: rtl; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .chart .grid line { stroke: var(--grid); stroke-width: 1; }
 .chart .baseline { stroke: var(--axis); stroke-width: 1; }
