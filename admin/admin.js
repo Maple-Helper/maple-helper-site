@@ -265,7 +265,7 @@
       github: "Set <code>GITHUB_TOKEN</code> (a fine-grained token with read access to the repository's Administration or Traffic) to see repository views, clones and referrers, and to lift the 60 calls/hour limit.",
       posthog: "Set <code>POSTHOG_PERSONAL_API_KEY</code> (scope: query:read) and <code>POSTHOG_PROJECT_ID</code> in Vercel to read app and site stats. US cloud is the default; for EU set <code>POSTHOG_HOST</code> and <code>POSTHOG_INGEST_HOST</code>.",
       site: "Set <code>POSTHOG_PROJECT_KEY</code> (the project's phc_ key) in Vercel to start counting site visits. Nothing is recorded until then.",
-      app: "The app sends stats only when a player turns them on, and only once <code>PROJECT_KEY</code> is filled in <code>maplehelper/telemetry.py</code> and that version is released.",
+      app: "Every install sends stats (always on since app 0.18.1); 0.15.0-0.18.0 send only the presence ping, counted by its daily and monthly flags.",
       vercel: "Set <code>VERCEL_API_TOKEN</code> and <code>VERCEL_PROJECT</code> (project id or name; add <code>VERCEL_TEAM_ID</code> for a team project) to list deployments.",
     }[what];
   }
@@ -284,13 +284,13 @@
 
   function renderNow(d) {
     var ph = d.posthog || {}, s = ph.summary || {}, gh = d.github || {};
-    var t = gh.totals || {};
     var latest = (gh.releases || []).find(function (r) { return !r.prerelease; });
     var latestDl = latest ? latest.counts.windows + latest.counts.mac + latest.counts.portable : null;
     $("now-tiles").innerHTML = [
       tile("Visitors online", ph.configured && ph.siteKeySet ? fmt(s.siteOnline) : null, "on the site, last 5 minutes", "live"),
-      tile("App in use", ph.configured ? fmt(s.appActive15m) : null, "installs active, last 15 minutes", "live"),
-      tile("Total downloads", gh.totals ? fmt(t.windows + t.mac + t.portable) : null, "installer, DMG and portable"),
+      tile("Players online", ph.configured ? fmt(s.appActive15m) : null, "app running, last 15 minutes", "live"),
+      tile("Players ever", ph.configured && ph.totals ? fmt(ph.totals.installsEver) : null, "installs that ever ran"),
+      tile("Players today", ph.configured ? fmt(s.appDau) : null, "unique installs, last 24 h"),
       tile("Latest release", latest ? latest.tag : null, latest ? ago(latest.published) + " · " + fmt(latestDl) + " downloads" : ""),
     ].join("");
   }
@@ -332,32 +332,52 @@
     if (!ph.configured) { box.innerHTML = '<div class="card">' + empty(setupHint("posthog")) + empty(setupHint("app")) + "</div>"; return; }
     var s = ph.summary || {};
     if (!s.appMau) box.insertAdjacentHTML("beforeend", '<div class="notice">No app events in the last 30 days. ' + setupHint("app") + "</div>");
+    var tot = ph.totals || {}, ret = ph.retention || {};
     box.insertAdjacentHTML("beforeend", '<div class="tiles">' + [
-      tile("Active today", fmt(s.appDau), "installs, last 24 h"),
-      tile("Active this week", fmt(s.appWau), "installs, last 7 days"),
-      tile("Active this month", fmt(s.appMau), "installs, last 30 days"),
-      tile("Questions today", fmt(s.questions24h), "last 24 h"),
-      tile("Questions", fmt(s.questions30d), pct(s.questionsWithScreenshot30d, s.questions30d) + " with a screenshot"),
-      tile("Voice questions", fmt(s.voice30d), "last 30 days"),
-      tile("New installs", fmt(s.freshInstalls30d), "first start, opted in"),
+      tile("Players ever", fmt(tot.installsEver), "installs that ever ran"),
+      tile("Active today", fmt(s.appDau), "unique installs, last 24 h"),
+      tile("Active this week", fmt(s.appWau), "unique installs, last 7 days (0.18.1+)"),
+      tile("Active this month", fmt(s.appMau), "unique installs, last 30 days"),
+      tile("New installs", fmt(s.freshInstalls30d), "first start, last 30 days"),
       tile("App updates", fmt(s.appUpdates30d), "first start on a new version"),
+      tile("Came back", pct(ret.cameBack, ret.olderThan1d), fmt(ret.cameBack) + " of " + fmt(ret.olderThan1d) + " installs used it on 2+ days"),
+      tile("Still active", pct(ret.back7d, ret.olderThan7d), "of installs older than a week, active in the last 7 days"),
+      tile("Questions today", fmt(s.questions24h), "last 24 h"),
+      tile("Questions", fmt(s.questions30d), pct(s.questionsWithScreenshot30d, s.questions30d) + " with a screenshot · " + fmt(s.askers30d) + " players asked"),
+      tile("Voice questions", fmt(s.voice30d), "last 30 days"),
+      tile("Avg. session", s.avgSessionMin ? s.avgSessionMin + " min" : "–", "app open to close"),
+      tile("Crashes", fmt(s.crashes30d), fmt(s.crashedInstalls30d) + " installs, last 30 days"),
+      tile("Game-data updates", fmt(s.kbUpdates30d), fmt(s.kbFails30d) + " failed, last 30 days"),
     ].join("") + "</div>");
     var grid = document.createElement("div");
     grid.className = "grid2";
     box.appendChild(grid);
     var days = lastDays(ph.daily || [], 30, "day");
     var labels = days.map(function (r) { return r.day; });
-    chartCard(grid, "Active installs per day", "", "line", labels,
-      [{ name: "Active installs", color: "--s1", values: val(days, "appUsers") }], dateShort);
+    chartCard(grid, "Players per day", "unique installs", "line", labels,
+      [{ name: "Players", color: "--s1", values: val(days, "appUsers") }], dateShort);
+    chartCard(grid, "New installs and updates per day", "", "column", labels,
+      [{ name: "New installs", color: "--s1", values: val(days, "installs") },
+       { name: "Updates", color: "--s2", values: val(days, "updates") }], dateShort);
+    var hours = (ph.hourly || []).slice(-48);
+    chartCard(grid, "Players online per hour", "last 48 hours", "line", hours.map(function (r) { return r.hour; }),
+      [{ name: "Players", color: "--s1", values: hours.map(function (r) { return r.appUsers; }) }], hourShort);
     chartCard(grid, "Questions per day", "", "column", labels,
       [{ name: "Questions", color: "--s1", values: val(days, "questions") }], dateShort);
     var b = ph.breakdowns || {};
     box.insertAdjacentHTML("beforeend", '<div class="grid3">' +
+      ranked("Countries", b.app_country, "players, last 30 days") +
+      ranked("App versions", b.app_version, "players, last 24 h") +
+      ranked("Operating system", b.app_os, "players") +
+      ranked("Character level", b.char_level, "players, active character") +
+      ranked("Class", b.char_class, "players, active character") +
+      ranked("Job", b.char_job, "players, active character") +
       ranked("Who answered", b.answered_by, "instant = local answer, no AI") +
-      ranked("App versions", b.app_version, "active installs, last 7 days") +
-      ranked("Operating system", b.app_os, "installs") +
-      ranked("App language", b.app_language, "installs") +
-      ranked("AI provider setting", b.app_provider, "installs") +
+      ranked("AI provider setting", b.app_provider, "players") +
+      ranked("App language", b.app_language, "players") +
+      ranked("Windows opened", b.window, "times, last 30 days") +
+      ranked("Crashes", b.crash, "error @ file:line") +
+      ranked("Game-data update failures", b.kb_fail, "reason") +
       "</div>");
   }
 
@@ -476,6 +496,8 @@
 
   var EVENT_NAMES = {
     app_started: "App started", app_updated: "App updated", question_asked: "Question asked", voice_used: "Voice question",
+    app_closed: "App closed", window_opened: "Window opened", app_crashed: "Crash", kb_updated: "Game data updated",
+    kb_update_failed: "Game-data update failed",
     site_pageview: "Site visit", site_download: "Download click",
   };
   function renderFeed(d) {
@@ -487,6 +509,7 @@
     $("feed").innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Event</th><th>Install / visitor</th><th>Details</th></tr></thead><tbody>' +
       rows.map(function (r) {
         var det = [clean(r.version) && "v" + r.version, clean(r.os), clean(r.answeredBy) && "answered by " + r.answeredBy,
+          clean(r.window), clean(r.error), clean(r.job) && r.job + (clean(r.level) ? " lv " + r.level : ""),
           clean(r.page), clean(r.target), clean(r.country)].filter(Boolean).join(" · ");
         return "<tr><td>" + ago(r.at) + "</td><td>" + esc(EVENT_NAMES[r.event] || r.event) + '</td><td><code>' + esc(r.who) + "</code></td><td>" + esc(det) + "</td></tr>";
       }).join("") + "</tbody></table></div>";
