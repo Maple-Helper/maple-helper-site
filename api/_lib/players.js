@@ -20,7 +20,10 @@ const EVENTS = "('app_running', 'app_started', 'app_updated', 'question_asked', 
 const flag = (p) => `coalesce(toString(properties.${p}), '') IN ('true', '1')`;
 const NOT_DEV = "coalesce(toString(properties.frozen), '') != 'false'";
 const SINCE = "timestamp >= toDateTime('2026-10-12 00:00:00', 'UTC')";   // 0.18.1 was released that day
-const CLEAN = `(${SINCE} AND event IN ${EVENTS} AND ${NOT_DEV} AND ${VNUM} >= ${MIN_VERSION})`;
+/* only what the app itself sends: its own $lib and a 32-hex install id (the project key is public, so anyone
+   could post events; this keeps casual fakes out) */
+const FROM_APP = "properties.$lib = 'maplehelper' AND match(distinct_id, '^[0-9a-f]{32}$')";
+const CLEAN = `(${SINCE} AND event IN ${EVENTS} AND ${NOT_DEV} AND ${VNUM} >= ${MIN_VERSION} AND ${FROM_APP})`;
 /* a question the player asked: not a 'Try again' / 'Ask Claude anyway' of the one before (retry = true) */
 const ASKED = `(event = 'question_asked' AND NOT ${flag("retry")})`;
 const LOCAL = `toTimeZone(timestamp, '${TZ}')`;

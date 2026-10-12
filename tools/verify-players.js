@@ -65,7 +65,8 @@ function check(name, page, raw) {
   if (page.errors.length) console.log("page query errors:", page.errors);
   const all_ = await all(until);
   const SINCE = Date.parse("2026-10-12T00:00:00Z");
-  const E = all_.filter((e) => e.at >= SINCE && !(e.p.frozen === false || e.p.frozen === "false") && vnum(e.p.app_version) >= players.MIN_VERSION);
+  const E = all_.filter((e) => e.at >= SINCE && !(e.p.frozen === false || e.p.frozen === "false") && vnum(e.p.app_version) >= players.MIN_VERSION &&
+    e.p.$lib === "maplehelper" && /^[0-9a-f]{32}$/.test(e.id));
   console.log(`raw: ${all_.length} app events since 2026-10-01, ${E.length} of them 0.18.1+ and not development\n`);
 
   const ilDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" });

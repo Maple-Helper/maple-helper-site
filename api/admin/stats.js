@@ -9,7 +9,7 @@ const store = require("../_lib/store");
    With Upstash Redis connected (api/_lib/store.js) the snapshot and a refresh lock are shared by every function
    instance, so only one refresh runs at a time across all of them; without it each instance keeps its own. */
 const TTL_MS = 2 * 60 * 1000;          // 14 PostHog queries a refresh
-const MIN_FORCE_MS = 2 * 60 * 1000;    // the Refresh button: at most once per snapshot
+const MIN_FORCE_MS = 30 * 1000;        // the Refresh button: a new snapshot if the shown one is 30 s+ old
 const ERROR_TTL_MS = 60 * 1000;        // a snapshot with failed parts: the next try a minute later
 const KEEP_COMPLETE_MS = 10 * 60 * 1000;
 const SNAP_KEY = "mh:admin:snapshot";
@@ -43,7 +43,7 @@ const isPartial = (data) => !!(data.posthog && ((data.posthog.errors && data.pos
 function next(prev, data) {
   const partial = isPartial(data);
   if (partial && prev && !prev.partial && Date.now() - prev.at < KEEP_COMPLETE_MS) {
-    return { ...prev, data: { ...prev.data, staleSince: prev.data.generatedAt }, retryAt: Date.now() };
+    return { ...prev, data: { ...data, posthog: prev.data.posthog, staleSince: prev.data.staleSince || prev.data.generatedAt }, retryAt: Date.now() };
   }
   return { at: Date.now(), data, partial };
 }

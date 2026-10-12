@@ -17,15 +17,48 @@ function parse(body) {
   try { return JSON.parse(body || "{}"); } catch (e) { return {}; }
 }
 
+/* the site's own pages ("/he" and "/he/" are one page); anything else is not a visit to count */
+const PAGES = { "/": "/", "/he": "/he/", "/en": "/" };
+const LANGS = new Set(["en", "he"]);
+const OSES = new Set(["windows", "mac", "mobile", "other"]);
+const TARGETS = new Set(["windows", "mac", "portable"]);
+
+/* a request from a page of this site: the browser says so (Sec-Fetch-Site), or the Origin/Referer is the site */
+function sameSite(req) {
+  const fetchSite = String(req.headers["sec-fetch-site"] || "");
+  if (fetchSite) return fetchSite === "same-origin";
+  const from = String(req.headers.origin || req.headers.referer || "");
+  try { return /(^|\.)maplehelper\.app$/.test(new URL(from).hostname); } catch (e) { return false; }
+}
+
+/* at most 40 events a minute from one address, per function instance (a page sends a view, a ping a minute and
+   a click now and then): enough for a few open tabs, not for a script */
+const hits = new Map();
+function limited(ip) {
+  const now = Date.now();
+  if (hits.size > 5000) hits.clear();
+  const h = hits.get(ip) || { start: now, n: 0 };
+  if (now - h.start > 60000) { h.start = now; h.n = 0; }
+  h.n++;
+  hits.set(ip, h);
+  return h.n > 40;
+}
+
 module.exports = async function collect(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.status(204);
   const key = process.env.POSTHOG_PROJECT_KEY;
   if (req.method !== "POST" || !key) return res.end();
+  /* only the live site counts (preview deployments are tests), and only requests from its own pages */
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") return res.end();
+  if (!sameSite(req)) return res.end();
   if (BOTS.test(String(req.headers["user-agent"] || ""))) return res.end();
+  if (limited(String(req.headers["x-forwarded-for"] || "").split(",")[0].trim())) return res.end();
 
   const b = parse(req.body);
   if (!EVENTS.has(b.e) || typeof b.sid !== "string" || !/^[a-z0-9]{8,40}$/.test(b.sid)) return res.end();
+  const page = PAGES[String(b.p || "/").replace(/\/+$/, "") || "/"];
+  if (!page) return res.end();
 
   let refHost;
   try { refHost = b.ref ? new URL(b.ref).hostname.replace(/^www\./, "") : "(direct)"; } catch (e) { refHost = "(unknown)"; }
@@ -36,10 +69,10 @@ module.exports = async function collect(req, res) {
     event: "site_" + b.e,
     distinct_id: "web-" + b.sid,
     properties: {
-      page: short(b.p, 120),
-      lang: short(b.lang, 8),
-      os: short(b.os, 16),
-      target: short(b.target, 16),
+      page,
+      lang: LANGS.has(b.lang) ? b.lang : undefined,
+      os: OSES.has(b.os) ? b.os : "other",
+      target: b.e === "download" ? (TARGETS.has(b.target) ? b.target : "other") : undefined,
       ref_host: b.e === "pageview" ? refHost : undefined,
       country: short(String(req.headers["x-vercel-ip-country"] || ""), 4) || undefined,
       $process_person_profile: false,
