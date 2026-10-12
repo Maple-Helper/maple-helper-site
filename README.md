@@ -73,8 +73,11 @@ What it shows, and where each number comes from:
 - **Downloads** – GitHub Releases `download_count` per asset: installer, DMG, portable zip; plus
   `kb-manifest.json` (running apps checking for game-data updates) and `SHA256SUMS.txt` (Windows
   apps verifying a self-update). Works with no setup.
-- **App usage** – the app's opt-in anonymous stats in PostHog (`maplehelper/telemetry.py`):
-  active installs (15 min / day / week / month), questions, who answered, versions, OS, language.
+- **Players and app usage** – the app's stats in PostHog (`maplehelper/telemetry.py`, `presence.py`; always on
+  since app 0.18.1, under a lasting random id per install): players online / ever / per day, week and month, new
+  installs, updates, who comes back, countries, versions, OS, language, AI provider, the active character's class,
+  job and level, questions, windows opened, crashes and game-data updates. Presence pings of 0.15.0-0.18.0 have no
+  lasting id and are counted by their first-today / first-this-month / first-ever flags.
 - **Website** – visitors online (last 5 minutes), visitors, page views, download clicks,
   countries, referrers. `site.js` sends a page view, a once-a-minute "still here" ping while the
   tab is visible, and download clicks to `/api/collect`. No cookies (random per-tab id), no IP

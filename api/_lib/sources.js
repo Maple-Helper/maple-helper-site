@@ -126,23 +126,35 @@ async function uptime() {
 
 /* ---------------------------------------------------------------- PostHog */
 
-/* App events come from maplehelper/telemetry.py (opt-in); site events from /api/collect. */
-const APP_EVENTS = "('app_started', 'app_updated', 'question_asked', 'voice_used')";
+/* App events come from maplehelper/telemetry.py and presence.py (always on since app 0.18.1, under a lasting
+   random id per install); site events from /api/collect.
+   Presence pings of 0.15.0-0.18.0 ("legacy") carry a new random id for every run, so they can't be counted as
+   unique installs: they are counted by their first_today / first_this_month / first_ping flags instead. */
+const APP_EVENTS = "('app_started', 'app_updated', 'question_asked', 'voice_used', 'app_running', 'app_closed', " +
+  "'window_opened', 'app_crashed', 'kb_updated', 'kb_update_failed')";
 /* Source runs of the app (frozen = false) are development, not players. */
 const NOT_DEV = "coalesce(toString(properties.frozen), '') != 'false'";
 const SCOPE = `(startsWith(event, 'site_') OR (event IN ${APP_EVENTS} AND ${NOT_DEV}))`;
-const isApp = `event IN ${APP_EVENTS}`;
+const LEGACY = "(event = 'app_running' AND coalesce(toString(properties.run_id), '') = '')";
+const anyApp = `event IN ${APP_EVENTS}`;
+const isApp = `(${anyApp} AND NOT ${LEGACY})`;
 const isSite = "startsWith(event, 'site_')";
 const truthy = (p) => `toString(properties.${p}) IN ('true', '1')`;
+const COUNTRY = "coalesce(nullIf(toString(properties.$geoip_country_name), ''), '(unknown)')";
+/* installs: unique lasting ids plus one per legacy ping carrying `flag` */
+const players = (flag, when) => `uniqIf(distinct_id, ${isApp} AND ${when}) + countIf(${LEGACY} AND ${truthy(flag)} AND ${when})`;
+const charProp = (dim, prop) => `
+    UNION ALL SELECT '${dim}', toString(properties.${prop}) AS v, uniq(distinct_id) FROM events
+      WHERE ${isApp} AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} AND toString(properties.${prop}) != '' GROUP BY v`;
 
 const QUERIES = {
   summary: `
     SELECT
       uniqIf(distinct_id, ${isSite} AND timestamp > now() - INTERVAL 5 MINUTE),
-      uniqIf(distinct_id, ${isApp} AND timestamp > now() - INTERVAL 15 MINUTE),
-      uniqIf(distinct_id, ${isApp} AND timestamp > now() - INTERVAL 1 DAY),
+      uniqIf(distinct_id, ${anyApp} AND timestamp > now() - INTERVAL 15 MINUTE),
+      ${players("first_today", "timestamp > now() - INTERVAL 1 DAY")},
       uniqIf(distinct_id, ${isApp} AND timestamp > now() - INTERVAL 7 DAY),
-      uniqIf(distinct_id, ${isApp}),
+      ${players("first_this_month", "1")},
       countIf(event = 'question_asked' AND timestamp > now() - INTERVAL 1 DAY),
       countIf(event = 'question_asked'),
       countIf(event = 'question_asked' AND ${truthy("screenshot")}),
@@ -154,37 +166,75 @@ const QUERIES = {
       uniqIf(distinct_id, event = 'site_pageview'),
       countIf(event = 'site_pageview'),
       countIf(event = 'site_download' AND timestamp > now() - INTERVAL 1 DAY),
-      countIf(event = 'site_download')
+      countIf(event = 'site_download'),
+      countIf(event = 'app_crashed'),
+      uniqIf(distinct_id, event = 'app_crashed'),
+      countIf(event = 'kb_updated'),
+      countIf(event = 'kb_update_failed'),
+      avgIf(toFloat(properties.minutes), event = 'app_closed' AND toFloat(properties.minutes) < 1440),
+      uniqIf(distinct_id, event = 'question_asked'),
+      countIf(event = 'window_opened')
     FROM events
     WHERE timestamp > now() - INTERVAL 30 DAY AND ${SCOPE}`,
+  /* all time: installs ever (lasting ids + legacy first pings), and those with a lasting id */
+  totals: `
+    SELECT
+      uniqIf(distinct_id, ${isApp}) + countIf(${LEGACY} AND ${truthy("first_ping")}),
+      uniqIf(distinct_id, ${isApp})
+    FROM events
+    WHERE ${anyApp} AND ${NOT_DEV}`,
+  /* who comes back, by lasting id: seen before last week and again in it; seen on more than one day */
+  retention: `
+    SELECT
+      countIf(first < now() - INTERVAL 7 DAY),
+      countIf(first < now() - INTERVAL 7 DAY AND last > now() - INTERVAL 7 DAY),
+      countIf(first < now() - INTERVAL 1 DAY),
+      countIf(first < now() - INTERVAL 1 DAY AND days > 1)
+    FROM (
+      SELECT distinct_id, min(timestamp) AS first, max(timestamp) AS last, uniq(toDate(timestamp)) AS days
+      FROM events WHERE ${isApp} AND ${NOT_DEV} GROUP BY distinct_id
+    )`,
   daily: `
     SELECT toDate(timestamp) AS day,
-      uniqIf(distinct_id, ${isApp}),
+      uniqIf(distinct_id, ${isApp}) + countIf(${LEGACY} AND ${truthy("first_today")}),
       countIf(event = 'question_asked'),
       countIf(event = 'app_started' AND ${truthy("fresh_install")}),
       uniqIf(distinct_id, event = 'site_pageview'),
-      countIf(event = 'site_download')
+      countIf(event = 'site_download'),
+      countIf(event = 'app_updated'),
+      countIf(event = 'app_crashed')
     FROM events
     WHERE timestamp > now() - INTERVAL 30 DAY AND ${SCOPE}
     GROUP BY day ORDER BY day`,
   hourly: `
     SELECT toStartOfHour(timestamp) AS hour,
       uniqIf(distinct_id, ${isSite}),
-      uniqIf(distinct_id, ${isApp})
+      uniqIf(distinct_id, ${anyApp})
     FROM events
     WHERE timestamp > now() - INTERVAL 48 HOUR AND ${SCOPE}
     GROUP BY hour ORDER BY hour`,
   breakdowns: `
     SELECT 'answered_by', toString(properties.answered_by) AS v, count() FROM events
       WHERE event = 'question_asked' AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
-    UNION ALL SELECT 'app_version', toString(properties.app_version) AS v, uniq(distinct_id) FROM events
-      WHERE ${isApp} AND timestamp > now() - INTERVAL 7 DAY AND ${NOT_DEV} GROUP BY v
-    UNION ALL SELECT 'app_os', toString(properties.$os) AS v, uniq(distinct_id) FROM events
+    UNION ALL SELECT 'app_version', toString(properties.app_version) AS v, ${players("first_today", "1")} FROM events
+      WHERE ${anyApp} AND timestamp > now() - INTERVAL 1 DAY AND ${NOT_DEV} GROUP BY v
+    UNION ALL SELECT 'app_os', toString(properties.$os) AS v, ${players("first_this_month", "1")} FROM events
+      WHERE ${anyApp} AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
+    UNION ALL SELECT 'app_country', ${COUNTRY} AS v, uniq(distinct_id) FROM events
       WHERE ${isApp} AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
-    UNION ALL SELECT 'app_language', toString(properties.language) AS v, uniq(distinct_id) FROM events
-      WHERE event = 'app_started' AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
-    UNION ALL SELECT 'app_provider', toString(properties.provider) AS v, uniq(distinct_id) FROM events
-      WHERE event = 'app_started' AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
+    ${charProp("app_language", "language")}
+    ${charProp("app_provider", "provider")}
+    ${charProp("char_class", "char_class")}
+    ${charProp("char_job", "char_job")}
+    UNION ALL SELECT 'char_level', concat(toString(toInt(floor(toFloat(properties.char_level) / 10)) * 10), '-',
+        toString(toInt(floor(toFloat(properties.char_level) / 10)) * 10 + 9)) AS v, uniq(distinct_id) FROM events
+      WHERE ${isApp} AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} AND toFloat(properties.char_level) > 0 GROUP BY v
+    UNION ALL SELECT 'window', toString(properties.window) AS v, count() FROM events
+      WHERE event = 'window_opened' AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
+    UNION ALL SELECT 'crash', concat(toString(properties.error), ' @ ', toString(properties.where)) AS v, count() FROM events
+      WHERE event = 'app_crashed' AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
+    UNION ALL SELECT 'kb_fail', toString(properties.reason) AS v, count() FROM events
+      WHERE event = 'kb_update_failed' AND timestamp > now() - INTERVAL 30 DAY AND ${NOT_DEV} GROUP BY v
     UNION ALL SELECT 'site_country', toString(properties.country) AS v, uniq(distinct_id) FROM events
       WHERE event = 'site_pageview' AND timestamp > now() - INTERVAL 30 DAY GROUP BY v
     UNION ALL SELECT 'site_referrer', toString(properties.ref_host) AS v, count() FROM events
@@ -198,10 +248,13 @@ const QUERIES = {
   recent: `
     SELECT timestamp, event, substring(distinct_id, 1, 6),
       toString(properties.app_version), toString(properties.$os), toString(properties.answered_by),
-      toString(properties.country), toString(properties.page), toString(properties.target)
+      coalesce(nullIf(toString(properties.country), ''), toString(properties.$geoip_country_name)),
+      toString(properties.page), toString(properties.target),
+      toString(properties.char_job), toString(properties.char_level), toString(properties.window),
+      toString(properties.error)
     FROM events
-    WHERE timestamp > now() - INTERVAL 1 DAY AND event != 'site_heartbeat' AND ${SCOPE}
-    ORDER BY timestamp DESC LIMIT 30`,
+    WHERE timestamp > now() - INTERVAL 1 DAY AND event NOT IN ('site_heartbeat', 'app_running') AND ${SCOPE}
+    ORDER BY timestamp DESC LIMIT 40`,
 };
 
 async function hogql(host, project, key, query) {
@@ -249,15 +302,23 @@ async function posthog() {
       voice30d: num(s[8]), freshInstalls30d: num(s[9]), appUpdates30d: num(s[10]),
       siteVisitors24h: num(s[11]), pageviews24h: num(s[12]), siteVisitors30d: num(s[13]), pageviews30d: num(s[14]),
       siteDownloads24h: num(s[15]), siteDownloads30d: num(s[16]),
+      crashes30d: num(s[17]), crashedInstalls30d: num(s[18]), kbUpdates30d: num(s[19]), kbFails30d: num(s[20]),
+      avgSessionMin: Math.round(num(s[21]) * 10) / 10, askers30d: num(s[22]), windowsOpened30d: num(s[23]),
+    } : null,
+    totals: res.totals && res.totals[0] ? { installsEver: num(res.totals[0][0]), trackedInstalls: num(res.totals[0][1]) } : null,
+    retention: res.retention && res.retention[0] ? {
+      olderThan7d: num(res.retention[0][0]), back7d: num(res.retention[0][1]),
+      olderThan1d: num(res.retention[0][2]), cameBack: num(res.retention[0][3]),
     } : null,
     daily: (res.daily || []).map((r) => ({
       day: String(r[0]).slice(0, 10), appUsers: num(r[1]), questions: num(r[2]), installs: num(r[3]),
-      visitors: num(r[4]), downloads: num(r[5]),
+      visitors: num(r[4]), downloads: num(r[5]), updates: num(r[6]), crashes: num(r[7]),
     })),
     hourly: (res.hourly || []).map((r) => ({ hour: r[0], siteVisitors: num(r[1]), appUsers: num(r[2]) })),
     breakdowns,
     recent: (res.recent || []).map((r) => ({
       at: r[0], event: r[1], who: r[2], version: r[3], os: r[4], answeredBy: r[5], country: r[6], page: r[7], target: r[8],
+      job: r[9], level: r[10], window: r[11], error: r[12],
     })),
   };
 }
