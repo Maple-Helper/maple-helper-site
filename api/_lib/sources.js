@@ -123,16 +123,31 @@ async function probe(name, url) {
   }
 }
 
+/* The download links are checked through the API (the latest release has the file, fully uploaded), never by
+   requesting the file: GitHub counts even a HEAD request to a release download as a download, so a check on every
+   refresh inflated the counts this dashboard shows (found in the audit). */
+async function assetCheck(name, file, latest, t0) {
+  const url = `https://github.com/${REPO}/releases/latest/download/${file}`;
+  if (!latest) return { name, url, ok: false, status: 0, ms: Date.now() - t0, error: "no release data" };
+  const a = (latest.assets || []).find((x) => x.name === file);
+  const ok = !!a && a.state === "uploaded" && a.size > 0;
+  return { name, url, ok, status: ok ? "uploaded" : a ? a.state : "missing", ms: Date.now() - t0 };
+}
+
 async function uptime() {
-  const dl = `https://github.com/${REPO}/releases/latest/download`;
-  const checks = await Promise.all([
+  const headers = { Accept: "application/vnd.github+json", "User-Agent": "maplehelper-admin", "X-GitHub-Api-Version": "2022-11-28" };
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  const t0 = Date.now();
+  const [site, siteHe, latest] = await Promise.all([
     probe("Site (English)", `${SITE}/`),
     probe("Site (Hebrew)", `${SITE}/he/`),
-    probe("Windows installer", `${dl}/MapleHelper-Setup.exe`),
-    probe("macOS DMG", `${dl}/MapleHelper-macOS.dmg`),
-    probe("Game-data manifest", `${dl}/kb-manifest.json`),
-    probe("Checksums", `${dl}/SHA256SUMS.txt`),
+    soft(getJson(`https://api.github.com/repos/${REPO}/releases/latest`, headers)),
   ]);
+  const checks = [site, siteHe];
+  for (const [name, file] of [["Windows installer", "MapleHelper-Setup.exe"], ["macOS DMG", "MapleHelper-macOS.dmg"],
+    ["Game-data manifest", "kb-manifest.json"], ["Checksums", "SHA256SUMS.txt"]]) {
+    checks.push(await assetCheck(name, file, latest, t0));
+  }
   return { configured: true, checks };
 }
 
@@ -181,21 +196,23 @@ const QUERIES = {
     SELECT timestamp, event, substring(distinct_id, 1, 10), toString(properties.page), toString(properties.target),
       toString(properties.country)
     FROM events WHERE event IN ('site_pageview', 'site_download') AND timestamp > now() - INTERVAL 1 DAY
-    ORDER BY timestamp DESC LIMIT 20`,
+    ORDER BY timestamp DESC LIMIT 50`,
 };
 
-/* up to 2 retries, after 3 s and 6 s, when PostHog is busy (503 "Queries are a little too busy right now", 429) */
-async function hogql(host, project, key, query, attempt = 0) {
+/* up to 2 retries, after 3 s and 6 s, when PostHog is busy (503 "Queries are a little too busy right now", 429),
+   never past `deadline` (the whole refresh must end inside the function's time limit) */
+async function hogql(host, project, key, query, deadline = Date.now() + 45000, attempt = 0) {
   const r = await fetchWithTimeout(`${host}/api/projects/${project}/query/`, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     /* force_blocking: PostHog otherwise answers a repeated query from its own cache, minutes old (found in the
        audit: a fresh event was missing); the dashboard keeps its own 2-minute snapshot instead */
     body: JSON.stringify({ query: { kind: "HogQLQuery", query }, name: "maplehelper-admin", refresh: "force_blocking" }),
-  }, 20000);
-  if ((r.status === 503 || r.status === 429) && attempt < 2) {
-    await new Promise((ok) => setTimeout(ok, 3000 * (attempt + 1)));
-    return hogql(host, project, key, query, attempt + 1);
+  }, Math.max(1000, Math.min(15000, deadline - Date.now())));
+  const wait = 3000 * (attempt + 1);
+  if ((r.status === 503 || r.status === 429) && attempt < 2 && Date.now() + wait + 5000 < deadline) {
+    await new Promise((ok) => setTimeout(ok, wait));
+    return hogql(host, project, key, query, deadline, attempt + 1);
   }
   if (!r.ok) throw new Error(`PostHog ${r.status}: ${(await r.text()).slice(0, 200)}`);
   return (await r.json()).results || [];
@@ -208,13 +225,14 @@ async function posthog() {
   const project = process.env.POSTHOG_PROJECT_ID;
   if (!key || !project) return { configured: false };
   const host = (process.env.POSTHOG_HOST || "https://us.posthog.com").replace(/\/$/, "");
-  const q = (sql) => hogql(host, project, key, sql);
+  const q = (sql, deadline) => hogql(host, project, key, sql, deadline);
 
-  /* PostHog runs at most 3 queries of a project at once and queues the rest: the app's queries 3 at a time, then
-     the site's, so none waits in that queue past its timeout */
-  const app = await players.run(q);
-  const res = await players.pool(QUERIES, q);
-  const errors = app.errors.concat(res.errors);
+  /* app and site queries in one pool of 3 (PostHog runs at most 3 queries of a project at once) */
+  const app = await players.run(q, QUERIES);
+  const res = { results: app.extra || {} };
+  delete app.extra;
+  const errors = app.errors;
+  const ok = (n) => !!res.results[n];
 
   const st = (res.results.site && res.results.site[0]) || null;
   const lists = {};
@@ -232,10 +250,10 @@ async function posthog() {
       online: num(st[0]), visitorsToday: num(st[1]), pageviewsToday: num(st[2]), visitors30d: num(st[3]),
       pageviews30d: num(st[4]), downloadsToday: num(st[5]), downloads30d: num(st[6]), downloaders30d: num(st[7]),
     } : null,
-    siteDaily: (res.results.site_daily || []).map((r) => ({ day: String(r[0]).slice(0, 10), visitors: num(r[1]), downloads: num(r[2]) })),
-    siteHourly: (res.results.site_hourly || []).map((r) => ({ hour: r[0], visitors: num(r[1]) })),
-    siteLists: lists,
-    siteRecent: (res.results.site_recent || []).map((r) => ({
+    siteDaily: ok("site_daily") ? res.results.site_daily.map((r) => ({ day: String(r[0]).slice(0, 10), visitors: num(r[1]), downloads: num(r[2]) })) : null,
+    siteHourly: ok("site_hourly") ? res.results.site_hourly.map((r) => ({ hour: r[0], visitors: num(r[1]) })) : null,
+    siteLists: ok("site_lists") ? lists : null,
+    siteRecent: !ok("site_recent") ? null : res.results.site_recent.map((r) => ({
       at: r[0], event: r[1], who: r[2], page: r[3], target: r[4], country: r[5],
     })),
   };

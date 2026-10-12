@@ -61,6 +61,7 @@ function check(name, page, raw) {
   const now = Date.now();
   const until = new Date(now).toISOString().replace("T", " ").replace("Z", "") + "000";
   const page = await players.run(q);
+  if (page.failed.length) { console.log("page queries failed:", page.errors); process.exit(2); }
   if (page.errors.length) console.log("page query errors:", page.errors);
   const all_ = await all(until);
   const SINCE = Date.parse("2026-10-12T00:00:00Z");
@@ -106,7 +107,7 @@ function check(name, page, raw) {
   E.forEach((e) => { (byDay[e.day] = byDay[e.day] || []).push(e); });
   const first = {};
   E.forEach((e) => { if (!first[e.id] || e.day < first[e.id]) first[e.id] = e.day; });
-  for (const r of page.daily) {
+  for (const r of page.daily || []) {
     const list = byDay[r.day] || [];
     check(`${r.day} players`, r.players, ids(list));
     check(`${r.day} questions`, r.questions, list.filter((e) => e.event === "question_asked" && !yes(e.p.retry)).length);
@@ -117,11 +118,12 @@ function check(name, page, raw) {
   check("days listed", page.daily.map((r) => r.day), Object.keys(byDay).sort());
 
   /* retention */
-  const span = {};
-  E.forEach((e) => {
-    const x = (span[e.id] = span[e.id] || { first: e.day, starts: new Set(), lastStart: "" });
+  const span = {};          // by app starts only: first start day, start days, last start day
+  E.filter((e) => e.event === "app_started").forEach((e) => {
+    const x = (span[e.id] = span[e.id] || { first: e.day, starts: new Set(), lastStart: e.day });
     if (e.day < x.first) x.first = e.day;
-    if (e.event === "app_started") { x.starts.add(e.day); if (e.day > x.lastStart) x.lastStart = e.day; }
+    x.starts.add(e.day);
+    if (e.day > x.lastStart) x.lastStart = e.day;
   });
   const S = Object.values(span);
   check("came back (app started on 2+ days)", [page.retention.before, page.retention.cameBack],
@@ -131,7 +133,7 @@ function check(name, page, raw) {
 
   /* per-install lists: each install's value on its latest event of the last 30 days */
   const latest = {};
-  E.filter((e) => now - e.at < 30 * 86400e3).forEach((e) => { if (!latest[e.id] || e.at >= latest[e.id].at) latest[e.id] = e; });
+  E.filter((e) => e.event === "app_running" && now - e.at < 30 * 86400e3).forEach((e) => { if (!latest[e.id] || e.at >= latest[e.id].at) latest[e.id] = e; });
   const level = (p) => { const n = Number(p.char_level); if (!(n > 0)) return ""; const b = Math.floor(n / 10) * 10; return `${b}-${b + 9}`; };
   const str = (v) => (v == null ? "" : String(v));
   const tally = (fn) => {

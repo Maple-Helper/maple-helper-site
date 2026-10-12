@@ -5,11 +5,11 @@ const sources = require("../_lib/sources");
 /* One snapshot per function instance for 2 minutes: the dashboard refreshes itself and
    several managers may have it open, but GitHub (60 calls/hour without a token) and
    PostHog's query API shouldn't be hit on every request. */
-const TTL_MS = 2 * 60 * 1000;   // ~10 PostHog queries a refresh; its limit is 2400 an hour
-const MIN_FORCE_MS = 30 * 1000;
+const TTL_MS = 2 * 60 * 1000;   // 14 PostHog queries a refresh; its limit is 2400 an hour
+const MIN_FORCE_MS = 2 * 60 * 1000;   // the Refresh button: at most once per snapshot
 let cache = null;
 let inflight = null;
-const ERROR_TTL_MS = 15 * 1000;
+const ERROR_TTL_MS = 60 * 1000;
 
 async function settle(name, fn) {
   try {
@@ -43,10 +43,17 @@ module.exports = async function stats(req, res) {
   const age = cache ? Date.now() - cache.at : Infinity;
   const ttl = cache && cache.partial ? ERROR_TTL_MS : TTL_MS;
   const force = req.query && req.query.fresh === "1" && age > MIN_FORCE_MS;
-  if (!cache || age > ttl || force) {
+  const retryWait = cache && cache.retryAt ? Date.now() - cache.retryAt < ERROR_TTL_MS : false;
+  if (!cache || ((age > ttl || force) && !retryWait)) {
     if (!inflight) {
       inflight = snapshot().then((data) => {
         const partial = !!(data.posthog && data.posthog.errors && data.posthog.errors.length) || !!(data.posthog && data.posthog.error);
+        /* a refresh that came back with failed parts doesn't replace a complete snapshot of the last 10 minutes:
+           that one is shown, marked with its time, and the next try comes a minute later */
+        if (partial && cache && !cache.partial && Date.now() - cache.at < 10 * 60 * 1000) {
+          cache = { ...cache, data: { ...cache.data, staleSince: cache.data.generatedAt }, partial: false, at: cache.at, retryAt: Date.now() };
+          return;
+        }
         cache = { at: Date.now(), data, partial };
       }).finally(() => { inflight = null; });
     }
