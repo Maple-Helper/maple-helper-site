@@ -67,7 +67,7 @@
     dl_clicks: ["Download clicks", "לחיצות הורדה"],
     of_visits: ["{p} of visits clicked one, 30 days", "{p} מהביקורים כללו לחיצה, 30 יום"],
     visits_per_hour: ["Visits per hour", "ביקורים לפי שעה"],
-    hours48: ["last 48 hours, Israel time", "48 השעות האחרונות, שעון ישראל"],
+    hours48: ["tabs active in each hour, last 48 hours, Israel time", "לשוניות פעילות בכל שעה, 48 השעות האחרונות, שעון ישראל"],
     site_visits_s: ["Site visits", "ביקורים באתר"],
     visits_dl_day: ["Visits and download clicks per day", "ביקורים ולחיצות הורדה ביום"],
     visits_s: ["Visits", "ביקורים"],
@@ -107,8 +107,10 @@
     signin_failed: ["Sign-in failed ({s}).", "הכניסה נכשלה ({s})."], network_error: ["Network error.", "שגיאת רשת."],
     just_now: ["just now", "עכשיו"], min_ago: ["{n} min ago", "לפני {n} דק'"], h_ago: ["{n} h ago", "לפני {n} שע'"], d_ago: ["{n} d ago", "לפני {n} ימים"], d_ago1: ["1 d ago", "לפני יום"],
     lang_switch: ["עברית", "English"],
+    feed_part: ["Part of the activity didn't load (see the notice above): what's listed is not everything.", "חלק מהפעילות לא נטען (ראו את ההודעה למעלה): מה שמוצג הוא לא הכול."],
+    data_from: ["numbers from {t}", "נתונים מ-{t}"],
     unavailable_q: ["Unavailable: this part failed to load (see the notice above). It is not 0.", "לא זמין: החלק הזה לא נטען (ראו את ההודעה למעלה). זה לא 0."],
-    stale: ["PostHog didn't answer in full just now: showing the complete numbers from {t}. Another try in a minute.", "PostHog לא ענה במלואו הרגע: מוצגים הנתונים המלאים מ-{t}. ניסיון נוסף בעוד דקה."],
+    stale: ["PostHog didn't answer in full just now: the players, app and site numbers are the complete ones from {t} (GitHub and monitoring are current). Another try in a minute.", "PostHog לא ענה במלואו הרגע: נתוני השחקנים, האפליקציה והאתר הם הנתונים המלאים מ-{t} (GitHub והניטור עדכניים). ניסיון נוסף בעוד דקה."],
     top50: ["Showing the first 50.", "מוצגים 50 הראשונים."],
     today_so_far: ["today's point is the day so far", "הנקודה של היום היא היום עד עכשיו"],
     since181: ["since 0.18.1", "מאז 0.18.1"],
@@ -116,8 +118,8 @@
     loading_short: ["Loading…", "טוען…"],
     il_day: ["Israel day", "יום לפי שעון ישראל"],
     p_since: ["Data from {t} (the first 0.18.1 event).", "נתונים מ-{t} (האירוע הראשון של 0.18.1)."],
-    p_note: ["Only events of Maple Helper 0.18.1 and later. From that version every install sends its events under one lasting random id, the app pings every 10 minutes while it runs, and there is no setting to turn the stats off (only the MAPLEHELPER_NO_TELEMETRY environment variable, or a firewall or ad-blocker that blocks PostHog). So a <b>player</b> here is one install (one computer and Windows/macOS user), counted once however often it restarts: one person with two computers counts twice. Every number is a direct count of distinct installs or of events, with no estimates. <b>Not included:</b> installs still on an older version (they join when they update), players who never finished the first-run setup, the developers' own source runs, and computers that never get online. Events that can't be sent are dropped, not retried, so time offline loses its events, and a crash can lose the last ~30 seconds. If an install's app data is wiped, it comes back as a new install. Times come from the player's computer clock. Days, weeks and months are in Israel time.",
-      "רק אירועים של Maple Helper מגרסה 0.18.1 ומעלה. מהגרסה הזו כל התקנה שולחת את האירועים שלה תחת מזהה אקראי קבוע אחד, האפליקציה שולחת פינג כל 10 דקות כל עוד היא פתוחה, ואין הגדרה לכבות את הסטטיסטיקות (רק משתנה הסביבה MAPLEHELPER_NO_TELEMETRY, או חומת אש או חוסם פרסומות שחוסמים את PostHog). לכן <b>שחקן</b> כאן הוא התקנה אחת (מחשב אחד ומשתמש Windows/macOS אחד), שנספרת פעם אחת לא משנה כמה פעמים הופעלה: אדם אחד עם שני מחשבים נספר פעמיים. כל מספר הוא ספירה ישירה של התקנות שונות או של אירועים, בלי הערכות. <b>לא כלולים:</b> התקנות שעדיין בגרסה ישנה יותר (הן נכנסות כשהן מתעדכנות), שחקנים שלא סיימו את ההגדרה הראשונית, הרצות פיתוח של המפתחים, ומחשבים שלא מתחברים לאינטרנט. אירועים שלא הצליחו להישלח נמחקים ולא נשלחים שוב, כך שזמן בלי אינטרנט מאבד את האירועים שלו, וקריסה עלולה לאבד את ~30 השניות האחרונות. אם נתוני האפליקציה של התקנה נמחקים, היא חוזרת כהתקנה חדשה. הזמנים לפי השעון של המחשב של השחקן. ימים, שבועות וחודשים לפי שעון ישראל."],
+    p_note: ["Only events of Maple Helper 0.18.1 and later. From that version every install sends its events under one lasting random id, the app pings every 10 minutes while it runs, and there is no setting to turn the stats off (only the MAPLEHELPER_NO_TELEMETRY environment variable, or a firewall or ad-blocker that blocks PostHog). So a <b>player</b> here is one install (one computer and Windows/macOS user), counted once however often it restarts: one person with two computers counts twice. Every number is a direct count of distinct installs or of events, with no estimates (the one exception, the \"already installed\" part of the joining chart, is first seen minus new installs). Your own and your testers' installed copies count like any player. <b>Not included:</b> installs still on an older version (they join when they update), players who never finished the first-run setup, the developers' own source runs, and computers that never get online. Events that can't be sent are dropped, not retried, so time offline loses its events, and a crash can lose the last ~30 seconds. If an install's app data is wiped, it comes back as a new install. Times come from the player's computer clock. Days, weeks and months are in Israel time.",
+      "רק אירועים של Maple Helper מגרסה 0.18.1 ומעלה. מהגרסה הזו כל התקנה שולחת את האירועים שלה תחת מזהה אקראי קבוע אחד, האפליקציה שולחת פינג כל 10 דקות כל עוד היא פתוחה, ואין הגדרה לכבות את הסטטיסטיקות (רק משתנה הסביבה MAPLEHELPER_NO_TELEMETRY, או חומת אש או חוסם פרסומות שחוסמים את PostHog). לכן <b>שחקן</b> כאן הוא התקנה אחת (מחשב אחד ומשתמש Windows/macOS אחד), שנספרת פעם אחת לא משנה כמה פעמים הופעלה: אדם אחד עם שני מחשבים נספר פעמיים. כל מספר הוא ספירה ישירה של התקנות שונות או של אירועים, בלי הערכות (היוצא מן הכלל, החלק \"התקנות קיימות\" בגרף המצטרפים, הוא נראו לראשונה פחות התקנות חדשות). גם העותקים המותקנים שלך ושל הבודקים נספרים כמו כל שחקן. <b>לא כלולים:</b> התקנות שעדיין בגרסה ישנה יותר (הן נכנסות כשהן מתעדכנות), שחקנים שלא סיימו את ההגדרה הראשונית, הרצות פיתוח של המפתחים, ומחשבים שלא מתחברים לאינטרנט. אירועים שלא הצליחו להישלח נמחקים ולא נשלחים שוב, כך שזמן בלי אינטרנט מאבד את האירועים שלו, וקריסה עלולה לאבד את ~30 השניות האחרונות. אם נתוני האפליקציה של התקנה נמחקים, היא חוזרת כהתקנה חדשה. הזמנים לפי השעון של המחשב של השחקן. ימים, שבועות וחודשים לפי שעון ישראל."],
     // tiles
     p_online: ["Online now", "מחוברים עכשיו"],
     p_online_sub: ["installs that pinged in the last 11 minutes", "התקנות ששלחו פינג ב-11 הדקות האחרונות"],
@@ -157,7 +159,7 @@
     p_players_s: ["Players", "שחקנים"],
     p_joins_day: ["Joining per day", "מצטרפים ביום"],
     p_joins_sub: ["first seen on 0.18.1+ that day", "נראו לראשונה ב-0.18.1+ באותו יום"],
-    p_updated_s: ["Came by updating", "הגיעו בעדכון"],
+    p_updated_s: ["Already installed (mostly updates)", "התקנות קיימות (רובן עדכונים)"],
     p_new_installs_s: ["New installs", "התקנות חדשות"],
     p_online_hour: ["Online per hour", "מחוברים לפי שעה"],
     p_hours48: ["last 48 hours, Israel time; the last hour is still filling", "48 השעות האחרונות, שעון ישראל; השעה האחרונה עדיין מתמלאת"],
@@ -208,34 +210,34 @@
       "<b>מה זה:</b> שחקנים חדשים. <b>איך נספר:</b> התקנות שהאפליקציה שלהן הופעלה לראשונה אחרי סיום ההגדרה הראשונית (מאז 0.18.1). התקנה מחדש באותו מחשב שבה נתוני האפליקציה נשמרו לא נחשבת חדשה; מחשב שנתוני האפליקציה בו נמחקו נחשב חדש. מי שעצר באמצע ההגדרה לא נספר עד שיסיים. <b>איך לעקוב:</b> קצב הצמיחה. השוואה ללחיצות ההורדה באתר נותנת רק מושג גס כמה מסיימים להתקין (בלחיצות יש גם לחיצות חוזרות, התקנות מחדש ומבקרים שחוסמים ספירה; מי שמוריד מ-GitHub לא עובר באתר)."],
     h_updates: ["<b>What:</b> app updates that reached players. <b>Counted:</b> app starts on a different version than the last run (normally an update; a downgrade also counts). Only from 0.18.1 on. <b>Follow:</b> after each release, watch how fast players arrive on it (see also \"App version\" and \"Updated from\").",
       "<b>מה זה:</b> עדכוני אפליקציה שהגיעו לשחקנים. <b>איך נספר:</b> הפעלות בגרסה שונה מההפעלה הקודמת (בדרך כלל עדכון; גם חזרה לגרסה ישנה נספרת). רק מגרסה 0.18.1. <b>איך לעקוב:</b> אחרי כל גרסה, כמה מהר שחקנים מגיעים אליה (ראו גם \"גרסת האפליקציה\" ו\"עודכנו מגרסה\")."],
-    h_came_back: ["<b>What:</b> do players come back after the first day? <b>Counted:</b> of the installs whose first app start was before today, the share that started the app on 2 or more different days (a single session that runs past midnight doesn't count as coming back; an app that starts with Windows counts as a start). <b>Follow:</b> the most important health number: low = players try it once and leave. It needs a few days of data to mean something.",
-      "<b>מה זה:</b> האם שחקנים חוזרים אחרי היום הראשון? <b>איך נספר:</b> מתוך ההתקנות שההפעלה הראשונה שלהן הייתה לפני היום, החלק שהפעיל את האפליקציה ב-2 ימים שונים או יותר (הפעלה אחת שנמשכת אחרי חצות לא נחשבת חזרה; אפליקציה שעולה עם Windows נחשבת הפעלה). <b>איך לעקוב:</b> מדד הבריאות החשוב ביותר: נמוך = מנסים פעם אחת ועוזבים. צריך כמה ימים של נתונים כדי שיהיה משמעותי."],
-    h_active_week: ["<b>What:</b> do players stay after their first week? <b>Counted:</b> of the installs whose first app start was 7 or more days ago, the share that started the app in the last 7 days. <b>Follow:</b> long-term retention. Shows \"–\" until the first players are a week old (19.10.2026).",
-      "<b>מה זה:</b> האם שחקנים נשארים אחרי השבוע הראשון? <b>איך נספר:</b> מתוך ההתקנות שההפעלה הראשונה שלהן הייתה לפני 7 ימים ויותר, החלק שהפעיל את האפליקציה ב-7 הימים האחרונים. <b>איך לעקוב:</b> שימור לטווח ארוך. יוצג \"–\" עד שהשחקנים הראשונים יהיו בני שבוע (19.10.2026)."],
-    h_questions: ["<b>What:</b> questions players asked the AI. <b>Counted:</b> each question once, when it's sent (a \"Try again\" or \"Ask &lt;AI&gt; anyway\" of the same question is counted apart, as a retry); instant answers from the app's own data count too. <b>Follow:</b> the core use of the app. Many retries = answers players weren't happy with.",
-      "<b>מה זה:</b> שאלות ששחקנים שאלו את ה-AI. <b>איך נספר:</b> כל שאלה פעם אחת, ברגע השליחה (\"נסה שוב\" או \"Ask &lt;AI&gt; anyway\" על אותה שאלה נספרים בנפרד, כניסיון חוזר); גם תשובות מיידיות מהנתונים של האפליקציה נספרות. <b>איך לעקוב:</b> השימוש העיקרי באפליקציה. הרבה ניסיונות חוזרים = תשובות ששחקנים לא היו מרוצים מהן."],
+    h_came_back: ["<b>What:</b> do players come back after the first day? <b>Counted:</b> of the installs whose first start on 0.18.1 or later was before today (for players who updated, that's the update day, not their real first day), the share that started the app on 2 or more different days (a single session that runs past midnight doesn't count as coming back; an app that starts with Windows counts as a start). <b>Follow:</b> the most important health number: low = players try it once and leave. It needs a few days of data to mean something.",
+      "<b>מה זה:</b> האם שחקנים חוזרים אחרי היום הראשון? <b>איך נספר:</b> מתוך ההתקנות שההפעלה הראשונה שלהן בגרסה 0.18.1 ומעלה הייתה לפני היום (אצל מי שהתעדכן זה יום העדכון, לא היום הראשון האמיתי), החלק שהפעיל את האפליקציה ב-2 ימים שונים או יותר (הפעלה אחת שנמשכת אחרי חצות לא נחשבת חזרה; אפליקציה שעולה עם Windows נחשבת הפעלה). <b>איך לעקוב:</b> מדד הבריאות החשוב ביותר: נמוך = מנסים פעם אחת ועוזבים. צריך כמה ימים של נתונים כדי שיהיה משמעותי."],
+    h_active_week: ["<b>What:</b> do players stay after their first week? <b>Counted:</b> of the installs whose first start on 0.18.1 or later was 7 or more days ago, the share that started the app in the last 7 days. <b>Follow:</b> long-term retention. Shows \"–\" until the first players are a week old (19.10.2026).",
+      "<b>מה זה:</b> האם שחקנים נשארים אחרי השבוע הראשון? <b>איך נספר:</b> מתוך ההתקנות שההפעלה הראשונה שלהן בגרסה 0.18.1 ומעלה הייתה לפני 7 ימים ויותר, החלק שהפעיל את האפליקציה ב-7 הימים האחרונים. <b>איך לעקוב:</b> שימור לטווח ארוך. יוצג \"–\" עד שהשחקנים הראשונים יהיו בני שבוע (19.10.2026)."],
+    h_questions: ["<b>What:</b> questions players asked the AI. <b>Counted:</b> each question once, when it's sent (a \"Try again\" or \"Ask &lt;AI&gt; anyway\" of the same question is counted apart, as a retry); instant answers from the app's own data count too. <b>Follow:</b> the core use of the app. Many retries = many failed AI answers (limits, sign-in, network) or instant answers that didn't help.",
+      "<b>מה זה:</b> שאלות ששחקנים שאלו את ה-AI. <b>איך נספר:</b> כל שאלה פעם אחת, ברגע השליחה (\"נסה שוב\" או \"Ask &lt;AI&gt; anyway\" על אותה שאלה נספרים בנפרד, כניסיון חוזר); גם תשובות מיידיות מהנתונים של האפליקציה נספרות. <b>איך לעקוב:</b> השימוש העיקרי באפליקציה. הרבה ניסיונות חוזרים = הרבה תשובות AI שנכשלו (מגבלות, התחברות, רשת) או תשובות מיידיות שלא עזרו."],
     h_askers: ["<b>What:</b> how many players actually use the chat. <b>Counted:</b> distinct installs that asked at least one question (since 0.18.1), their share of all players, and questions per asking player. <b>Follow:</b> a low share = many players only use the other tools, or don't know they can ask.",
       "<b>מה זה:</b> כמה שחקנים באמת משתמשים בצ'אט. <b>איך נספר:</b> התקנות שונות ששאלו לפחות שאלה אחת (מאז 0.18.1), החלק שלהן מכל השחקנים, ושאלות לשואל. <b>איך לעקוב:</b> אחוז נמוך = הרבה שחקנים משתמשים רק בכלים האחרים, או לא יודעים שאפשר לשאול."],
     h_voice: ["<b>What:</b> use of the microphone. <b>Counted:</b> every time speech was turned into text (also when the text was then not sent). <b>Follow:</b> whether the voice feature is worth investing in.",
       "<b>מה זה:</b> שימוש במיקרופון. <b>איך נספר:</b> כל פעם שדיבור הפך לטקסט (גם אם הטקסט לא נשלח בסוף). <b>איך לעקוב:</b> האם כדאי להשקיע בתכונת הקול."],
     h_sessions: ["<b>What:</b> how long the app stays open. <b>Counted:</b> app runs that ended with a normal quit, with the time from start to quit (including time in the tray; on Windows also computer sleep). Runs that ended in a crash, a forced close or a Windows shutdown aren't counted. <b>Follow:</b> a rough measure of engagement; one long tray session can pull the average up.",
       "<b>מה זה:</b> כמה זמן האפליקציה פתוחה. <b>איך נספר:</b> הפעלות שהסתיימו ביציאה רגילה, עם הזמן מההפעלה ועד היציאה (כולל זמן ליד השעון; ב-Windows גם שינה של המחשב). הפעלות שהסתיימו בקריסה, בסגירה בכוח או בכיבוי Windows לא נספרות. <b>איך לעקוב:</b> מדד גס למעורבות; הפעלה ארוכה אחת ליד השעון יכולה להעלות את הממוצע."],
-    h_windows_opened: ["<b>What:</b> use of the app's windows (tools, map, Free Market, guides, settings...). <b>Counted:</b> every time a window was opened (bringing an already open one forward doesn't count; the chat and the in-game bar aren't windows). See the \"Windows opened\" list for which. <b>Follow:</b> which features players use and which nobody opens.",
-      "<b>מה זה:</b> שימוש בחלונות של האפליקציה (כלים, מפה, שוק, מדריכים, הגדרות...). <b>איך נספר:</b> כל פתיחה של חלון (הבאת חלון שכבר פתוח לקדמת המסך לא נספרת; הצ'אט והסרגל שמעל המשחק אינם חלונות). איזה חלון בדיוק – ברשימה \"חלונות שנפתחו\". <b>איך לעקוב:</b> באילו תכונות משתמשים ואילו אף אחד לא פותח."],
+    h_windows_opened: ["<b>What:</b> use of the app's windows (tools, map, Free Market, guides, settings...). <b>Counted:</b> every time a window was opened (bringing an already open one forward doesn't count; the chat and the in-game bar aren't windows; the What's new window that opens by itself after an update counts too). See the \"Windows opened\" list for which. <b>Follow:</b> which features players use and which nobody opens.",
+      "<b>מה זה:</b> שימוש בחלונות של האפליקציה (כלים, מפה, שוק, מדריכים, הגדרות...). <b>איך נספר:</b> כל פתיחה של חלון (הבאת חלון שכבר פתוח לקדמת המסך לא נספרת; הצ'אט והסרגל שמעל המשחק אינם חלונות; גם חלון 'מה חדש' שנפתח מעצמו אחרי עדכון נספר). איזה חלון בדיוק – ברשימה \"חלונות שנפתחו\". <b>איך לעקוב:</b> באילו תכונות משתמשים ואילו אף אחד לא פותח."],
     h_crashes: ["<b>What:</b> errors inside the app. <b>Counted:</b> unexpected program errors (uncaught exceptions), with how many installs had one. Many of them the app survives; a hard crash of the whole program or a freeze isn't counted. <b>Follow:</b> should stay near 0. The \"Errors\" list says where in the code: the top line is the first thing to fix.",
       "<b>מה זה:</b> שגיאות בתוך האפליקציה. <b>איך נספר:</b> שגיאות תוכנה לא צפויות, וכמה התקנות נתקלו בהן. את רובן האפליקציה שורדת; קריסה מוחלטת של כל התוכנה או תקיעה לא נספרות. <b>איך לעקוב:</b> צריך להישאר קרוב ל-0. הרשימה \"שגיאות\" אומרת איפה בקוד: השורה העליונה היא הדבר הראשון לתקן."],
-    h_kb: ["<b>What:</b> game-data updates the app downloaded (the nightly NiaMeowDB data). <b>Counted:</b> successful updates and failed ones (the failure list gives the reason). <b>Follow:</b> failures should be rare; many of them = a problem with the nightly data or the download.",
-      "<b>מה זה:</b> עדכוני נתוני המשחק שהאפליקציה הורידה (הנתונים הליליים מ-NiaMeowDB). <b>איך נספר:</b> עדכונים שהצליחו ועדכונים שנכשלו (ברשימת הכישלונות מופיעה הסיבה). <b>איך לעקוב:</b> כישלונות צריכים להיות נדירים; הרבה כאלה = בעיה בנתונים הליליים או בהורדה."],
+    h_kb: ["<b>What:</b> game-data updates the app downloaded (the nightly NiaMeowDB data). <b>Counted:</b> successful updates, and failed ones: a check or download that failed, including when the app couldn't reach the update server at all (the failure list gives the reason). <b>Follow:</b> failures should be rare; many of them = a problem with the nightly data or the download.",
+      "<b>מה זה:</b> עדכוני נתוני המשחק שהאפליקציה הורידה (הנתונים הליליים מ-NiaMeowDB). <b>איך נספר:</b> עדכונים שהצליחו, ועדכונים שנכשלו: בדיקה או הורדה שנכשלו, כולל כשהאפליקציה לא הצליחה להגיע לשרת העדכונים בכלל (ברשימת הכישלונות מופיעה הסיבה). <b>איך לעקוב:</b> כישלונות צריכים להיות נדירים; הרבה כאלה = בעיה בנתונים הליליים או בהורדה."],
     h_per_day: ["<b>What:</b> players per day since 0.18.1. <b>Counted:</b> distinct installs with any event that day (Israel time). <b>Follow:</b> the trend line of the app. Weekends and game events show as bumps; look at the direction over weeks, not single days.",
       "<b>מה זה:</b> שחקנים בכל יום מאז 0.18.1. <b>איך נספר:</b> התקנות שונות עם אירוע כלשהו באותו יום (שעון ישראל). <b>איך לעקוב:</b> קו המגמה של האפליקציה. סופי שבוע ואירועים במשחק נראים כקפיצות; חשוב הכיוון לאורך שבועות, לא יום בודד."],
-    h_joins_day: ["<b>What:</b> where new players come from, per day. <b>Counted:</b> installs seen on 0.18.1+ for the first time that day, split into new installs and installs that came over by updating. <b>Follow:</b> the \"updated\" part fades as old installs finish updating; after that, new installs are your real growth.",
-      "<b>מה זה:</b> מאיפה מגיעים שחקנים, בכל יום. <b>איך נספר:</b> התקנות שנראו ב-0.18.1+ לראשונה באותו יום, מחולקות להתקנות חדשות ולהתקנות שהגיעו בעדכון. <b>איך לעקוב:</b> החלק של המתעדכנים ידעך כשההתקנות הישנות יסיימו להתעדכן; מאז ההתקנות החדשות הן הצמיחה האמיתית."],
+    h_joins_day: ["<b>What:</b> where new players come from, per day. <b>Counted:</b> installs seen on 0.18.1+ for the first time that day, split into new installs and the rest: mostly installs that updated from an older version, also any whose start event didn't arrive. <b>Follow:</b> the \"updated\" part fades as old installs finish updating; after that, new installs are your real growth.",
+      "<b>מה זה:</b> מאיפה מגיעים שחקנים, בכל יום. <b>איך נספר:</b> התקנות שנראו ב-0.18.1+ לראשונה באותו יום, מחולקות להתקנות חדשות ולשאר: בעיקר כאלה שהתעדכנו מגרסה ישנה, וגם כאלה שאירוע ההפעלה שלהן לא הגיע. <b>איך לעקוב:</b> החלק של המתעדכנים ידעך כשההתקנות הישנות יסיימו להתעדכן; מאז ההתקנות החדשות הן הצמיחה האמיתית."],
     h_online_hour: ["<b>What:</b> installs with the app running, hour by hour, last 48 hours (Israel time). <b>Counted:</b> distinct installs that pinged during that hour; the last hour is still filling up. <b>Follow:</b> when players play: the best hours to post news or release an update.",
       "<b>מה זה:</b> התקנות שהאפליקציה רצה אצלן, שעה אחרי שעה, ב-48 השעות האחרונות (שעון ישראל). <b>איך נספר:</b> התקנות שונות ששלחו פינג באותה שעה; השעה האחרונה עדיין מתמלאת. <b>איך לעקוב:</b> מתי שחקנים משחקים: השעות הטובות לפרסם חדשות או לשחרר עדכון."],
     h_questions_day: ["<b>What:</b> questions per day (retries not included). <b>Follow:</b> together with players per day: questions per player shows whether the chat stays useful.",
       "<b>מה זה:</b> שאלות בכל יום (בלי ניסיונות חוזרים). <b>איך לעקוב:</b> ביחד עם שחקנים ביום: שאלות לשחקן מראות אם הצ'אט ממשיך להיות שימושי."],
-    h_per_install: ["<b>Counted:</b> each install once, with its value on its latest event of the last 30 days (where the player is now, its current character and settings), taken from its latest \"running\" ping. Empty = the app doesn't know (no character set up yet). <b>Follow:</b> who your players are: which countries to target, which levels and jobs the content should serve.",
-      "<b>איך נספר:</b> כל התקנה פעם אחת, עם הערך מהאירוע האחרון שלה ב-30 הימים האחרונים (איפה השחקן נמצא עכשיו, הדמות וההגדרות הנוכחיות), מתוך הפינג האחרון שלה. ריק = האפליקציה לא יודעת (עוד לא הוגדרה דמות). <b>איך לעקוב:</b> מי השחקנים: לאילו מדינות לפנות, לאילו רמות וג'ובים התוכן צריך להתאים."],
+    h_per_install: ["<b>Counted:</b> each install once, with its value on its latest \"running\" ping of the last 30 days (where the player is now, its current character and settings). Empty = not known: no character set up yet (level, class, job), or a location the IP address doesn't tell (country). <b>Follow:</b> who your players are: which countries to target, which levels and jobs the content should serve.",
+      "<b>איך נספר:</b> כל התקנה פעם אחת, עם הערך מהפינג האחרון שלה ב-30 הימים האחרונים (איפה השחקן נמצא עכשיו, הדמות וההגדרות הנוכחיות). ריק = לא ידוע: עוד לא הוגדרה דמות (רמה, מחלקה, ג'וב), או מיקום שכתובת ה-IP לא מגלה (מדינה). <b>איך לעקוב:</b> מי השחקנים: לאילו מדינות לפנות, לאילו רמות וג'ובים התוכן צריך להתאים."],
     h_version: ["<b>What:</b> the app version each player runs now. <b>Follow:</b> after a release, how fast it spreads. Windows updates itself; macOS players who stay on an old version need a reminder.",
       "<b>מה זה:</b> הגרסה שכל שחקן מריץ עכשיו. <b>איך לעקוב:</b> אחרי גרסה, כמה מהר היא מתפשטת. Windows מתעדכן לבד; שחקני Mac שנשארים בגרסה ישנה צריכים תזכורת."],
     h_answered: ["<b>What:</b> which AI each question was sent to (30 days): the provider set at the time, so a question whose answer failed counts too. \"instant\" = answered by the app itself from its game data, with no AI; \"(retry)\" = a Try again / Ask &lt;AI&gt; anyway. <b>Follow:</b> which AI accounts your players use: where to put testing effort.",
@@ -260,8 +262,8 @@
     h_latest: ["<b>What:</b> the newest released version, how long ago, and its downloads (Windows + macOS + portable, updates included).",
       "<b>מה זה:</b> הגרסה האחרונה ששוחררה, לפני כמה זמן, וההורדות שלה (Windows + Mac + ניידת, כולל עדכונים)."],
     // site
-    h_site_online: ["<b>What:</b> browser tabs with maplehelper.app in view in the last 5 minutes (a visible tab pings once a minute, for up to 30 minutes).",
-      "<b>מה זה:</b> לשוניות דפדפן שבהן האתר maplehelper.app מוצג, ב-5 הדקות האחרונות (לשונית גלויה שולחת פינג פעם בדקה, עד 30 דקות)."],
+    h_site_online: ["<b>What:</b> browser tabs with maplehelper.app in view in the last 5 minutes (a page pings once a minute while it's visible, up to 30 times per page).",
+      "<b>מה זה:</b> לשוניות דפדפן שבהן האתר maplehelper.app מוצג, ב-5 הדקות האחרונות (דף שולח פינג פעם בדקה כשהוא גלוי, עד 30 פעמים לכל דף)."],
     h_site_visits: ["<b>What:</b> visits to the site. <b>Counted:</b> one visit = one browser tab (no cookies: one person with two tabs counts twice; visitors with Do Not Track or Global Privacy Control aren't counted). <b>Follow:</b> how many people reach the site; a jump after a post shows the post worked.",
       "<b>מה זה:</b> ביקורים באתר. <b>איך נספר:</b> ביקור אחד = לשונית דפדפן אחת (בלי עוגיות: אדם עם שתי לשוניות נספר פעמיים; מבקרים עם Do Not Track או Global Privacy Control לא נספרים). <b>איך לעקוב:</b> כמה אנשים מגיעים לאתר; קפיצה אחרי פוסט אומרת שהפוסט עבד."],
     h_site_views: ["<b>What:</b> pages viewed on the site (a visit that opens the Hebrew page too counts 2).",
@@ -284,9 +286,9 @@
   };
   var EVENTS = {
     app_started: ["App started", "האפליקציה הופעלה"], app_updated: ["App updated", "האפליקציה עודכנה"],
-    question_asked: ["Question asked", "נשאלה שאלה"], voice_used: ["Voice question", "שאלה בקול"],
+    question_asked: ["Question asked", "נשאלה שאלה"], voice_used: ["Voice input", "הקלטה קולית"],
     app_closed: ["App closed", "האפליקציה נסגרה"], window_opened: ["Window opened", "נפתח חלון"],
-    app_crashed: ["Crash", "קריסה"], kb_updated: ["Game data updated", "נתוני המשחק עודכנו"],
+    app_crashed: ["Error", "שגיאה"], kb_updated: ["Game data updated", "נתוני המשחק עודכנו"],
     kb_update_failed: ["Game-data update failed", "עדכון נתוני המשחק נכשל"],
     site_pageview: ["Site visit", "ביקור באתר"], site_download: ["Download click", "לחיצת הורדה"],
   };
@@ -712,6 +714,7 @@
     var box = $("app-body"), ph = d.posthog || {};
     box.innerHTML = "";
     if (!ph.configured) { box.innerHTML = '<div class="card">' + empty(setupHint("posthog")) + "</div>"; return; }
+    if (ph.error) { box.innerHTML = '<div class="card">' + empty(esc(t("unavailable_q"))) + "</div>"; return; }
     var a = ph.app || {}, s = a.summary || {}, r = a.retention || {}, L = a.lists || {};
     var failed = a.failed || [];
     var listOf = function (part, key) { return failed.indexOf(part) >= 0 ? null : L[key]; };
@@ -823,16 +826,16 @@
     box.appendChild(grid);
     var v = (tr.views && tr.views.daily) || [];
     chartCard(grid, t("repo_views"), t("views14"), "line",
-      v.map(function (x) { return x.timestamp; }),
+      tr.views ? v.map(function (x) { return x.timestamp; }) : null,
       [{ name: t("repo_views"), color: "--s1", values: v.map(function (x) { return x.count; }) },
        { name: lang === "he" ? "מבקרים ייחודיים" : "Unique visitors", color: "--s2", values: v.map(function (x) { return x.uniques; }) }], dateShort);
     var c = (tr.clones && tr.clones.daily) || [];
     chartCard(grid, t("repo_clones"), "", "column",
-      c.map(function (x) { return x.timestamp; }),
+      tr.clones ? c.map(function (x) { return x.timestamp; }) : null,
       [{ name: t("repo_clones"), color: "--s1", values: c.map(function (x) { return x.count; }) }], dateShort);
     box.insertAdjacentHTML("beforeend", '<div class="grid2">' +
-      ranked(t("repo_referrers"), (tr.referrers || []).map(function (r) { return { value: r.referrer, count: r.count }; }), t("views14")) +
-      ranked(t("repo_pages"), (tr.paths || []).map(function (p) { return { value: p.path, count: p.count }; }), t("views14")) +
+      ranked(t("repo_referrers"), tr.referrers ? tr.referrers.map(function (r) { return { value: r.referrer, count: r.count }; }) : null, t("views14")) +
+      ranked(t("repo_pages"), tr.paths ? tr.paths.map(function (p) { return { value: p.path, count: p.count }; }) : null, t("views14")) +
       "</div>");
   }
 
@@ -853,7 +856,7 @@
       }).join("") + "</tbody></table></div>" : empty(t("unavailable"));
 
     var runs = (d.github && d.github.workflowRuns) || null;
-    $("runs").innerHTML = runs && runs.length ? '<div class="tbl-wrap"><table><thead><tr><th>' + t("workflow") + "</th><th>" + t("result") +
+    $("runs").innerHTML = d.github && d.github.configured && !d.github.error && runs === null ? empty(esc(t("unavailable_q"))) : runs && runs.length ? '<div class="tbl-wrap"><table><thead><tr><th>' + t("workflow") + "</th><th>" + t("result") +
       "</th><th>" + t("branch") + "</th><th>" + t("when") + "</th></tr></thead><tbody>" +
       runs.map(function (r) {
         return '<tr><td class="wrap-cell"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a><div class="muted small" dir="auto">' + esc(r.title) +
@@ -879,11 +882,13 @@
     var ph = d.posthog || {};
     if (!ph.configured) { $("feed").innerHTML = empty(t("needs_posthog")); return; }
     var clean = function (v) { return v && v !== "null" ? v : ""; };
-    if ((ph.app && ph.app.recent === null) || ph.siteRecent === null) { $("feed").innerHTML = empty(esc(t("unavailable_q"))); return; }
+    if (ph.error) { $("feed").innerHTML = empty(esc(t("unavailable_q"))); return; }
+    var missing = (ph.app && ph.app.recent === null) || ph.siteRecent === null;
     var rows = ((ph.app && ph.app.recent) || []).concat(ph.siteRecent || []);
     rows.sort(function (a, b) { return new Date(b.at) - new Date(a.at); });
     rows = rows.slice(0, 50);
-    if (!rows.length) { $("feed").innerHTML = empty(t("nothing24")); return; }
+    var part = missing ? empty(esc(t("feed_part"))) : "";
+    if (!rows.length) { $("feed").innerHTML = part || empty(t("nothing24")); return; }
     $("feed").innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>' + t("when") + "</th><th>" + t("event") + "</th><th>" + t("who") +
       "</th><th>" + t("details") + "</th></tr></thead><tbody>" +
       rows.map(function (r) {
@@ -893,7 +898,7 @@
           clean(r.page), clean(r.target), clean(r.country)].filter(Boolean).join(" · ");
         var name = EVENTS[r.event] ? EVENTS[r.event][lang === "he" ? 1 : 0] : r.event;
         return "<tr><td>" + ago(r.at) + "</td><td>" + esc(name) + '</td><td><code>' + esc(r.who) + '</code></td><td><bdi>' + esc(det) + "</bdi></td></tr>";
-      }).join("") + "</tbody></table></div>";
+      }).join("") + "</tbody></table></div>" + part;
   }
 
   function renderGuide() {
@@ -904,6 +909,7 @@
   }
 
   function render(d) {
+    hideTip();
     data = d;
     snapAt = d.generatedAt ? new Date(d.generatedAt).getTime() : Date.now();
     charts = [];
@@ -942,7 +948,9 @@
     $("password").focus();
   }
 
+  var loadSeq = 0;
   function load(force) {
+    var seq = ++loadSeq;
     var btn = $("refresh");
     btn.disabled = true;
     /* the first load reads PostHog fresh (~20 s): say so at once instead of an empty page */
@@ -952,6 +960,7 @@
     }
     $("updated").textContent = t("loading_short");
     return api("/api/admin/stats" + (force ? "?fresh=1" : "")).then(function (r) {
+      if (seq !== loadSeq) return;            // a newer load is on its way: this answer is older
       btn.disabled = false;
       if (r.status === 401) {
         return showLogin(r.body.configured === false ? setupMessage(r.body) : "");
@@ -969,7 +978,9 @@
 
   /* the first load failed: no page behind it yet, so say it on the page itself */
   function failed(msg) {
-    $("updated").textContent = msg;
+    $("updated").textContent = data && data.generatedAt
+      ? msg + " · " + t("data_from", { t: new Date(data.generatedAt).toLocaleTimeString(loc(), { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) })
+      : msg;
     if ($("app").hidden && $("login").hidden) {
       $("app").hidden = false;
       $("notices").innerHTML = '<div class="notice err">' + esc(msg) + "</div>";
@@ -991,7 +1002,7 @@
       body: JSON.stringify({ password: $("password").value }),
     }).then(function (r) {
       b.disabled = false;
-      if (r.status === 200) { $("password").value = ""; return load(false); }
+      if (r.status === 200) { $("password").value = ""; $("login").hidden = true; return load(false); }
       showLogin({
         "wrong-password": t("wrong_password"),
         "too-many-attempts": t("too_many"),
@@ -1005,7 +1016,13 @@
   });
   $("auto").addEventListener("change", schedule);
   $("logout").addEventListener("click", function () {
-    api("/api/admin/logout", { method: "POST" }).then(function () { showLogin(""); });
+    var done = function () {
+      data = null;
+      ["notices", "now-tiles", "dl-tiles", "dl-chart-host", "app-body", "site-body", "gh-tiles", "gh-traffic", "uptime", "runs", "deploys", "feed", "guide"]
+        .forEach(function (id) { if ($(id)) $(id).innerHTML = ""; });
+      showLogin("");
+    };
+    api("/api/admin/logout", { method: "POST" }).then(done, done);
   });
   document.querySelectorAll(".lang-btn").forEach(function (b) { b.addEventListener("click", switchLang); });
 

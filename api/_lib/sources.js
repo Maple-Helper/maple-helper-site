@@ -156,13 +156,13 @@ async function uptime() {
 /* App numbers (players and usage): app 0.18.1 and later only, counted in api/_lib/players.js.
    Site numbers: the site's own anonymous visit events (api/collect.js), here. Days in Israel time, like the app's.
    uniqExact everywhere; every grouped list has its own ORDER BY + LIMIT (PostHog returns 100 rows otherwise). */
-const SITE_EV = "startsWith(event, 'site_')";
+const SITE_EV = "(startsWith(event, 'site_') AND properties.$lib = 'maplehelper-site' AND startsWith(distinct_id, 'web-'))";
 const IL_DAY = `toDate(toTimeZone(timestamp, '${players.TZ}'))`;
 const IL_TODAY = `toDate(toTimeZone(now(), '${players.TZ}'))`;
 const LAST30 = "timestamp > now() - INTERVAL 30 DAY";
 const sstr = (p) => `coalesce(nullIf(toString(properties.${p}), ''), '')`;
 const siteList = (dim, ev, expr) => `
-    SELECT '${dim}', ${expr} AS v, count() FROM events WHERE event = '${ev}' AND ${LAST30}
+    SELECT '${dim}', ${expr} AS v, count() FROM events WHERE event = '${ev}' AND ${SITE_EV} AND ${LAST30}
     GROUP BY v ORDER BY count() DESC, v LIMIT 50`;
 
 const QUERIES = {
@@ -188,14 +188,14 @@ const QUERIES = {
   site_lists: [
     siteList("site_country", "site_pageview", sstr("country")),
     siteList("site_referrer", "site_pageview", sstr("ref_host")),
-    siteList("site_page", "site_pageview", sstr("page")),
+    siteList("site_page", "site_pageview", `if(${sstr("page")} = '/he', '/he/', ${sstr("page")})`),   // one page, with or without "/"
     siteList("site_visitor_os", "site_pageview", sstr("os")),
     siteList("site_download_os", "site_download", sstr("target")),
   ].join(" UNION ALL "),
   site_recent: `
     SELECT timestamp, event, substring(distinct_id, 1, 10), toString(properties.page), toString(properties.target),
       toString(properties.country)
-    FROM events WHERE event IN ('site_pageview', 'site_download') AND timestamp > now() - INTERVAL 1 DAY
+    FROM events WHERE event IN ('site_pageview', 'site_download') AND ${SITE_EV} AND timestamp > now() - INTERVAL 1 DAY
     ORDER BY timestamp DESC LIMIT 50`,
 };
 
