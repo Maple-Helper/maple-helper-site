@@ -198,3 +198,8 @@ details.help .help-text {
 .guide-item:last-child { border-bottom: 0; }
 .guide-item h3 { font-size: 15px; margin-bottom: 4px; }
 .guide-item .note { max-width: none; line-height: 1.7; color: var(--text); }
+.notice.loading { border-inline-start-color: var(--orange); }
+.notice.loading::after { content: ""; display: inline-block; width: 12px; height: 12px; margin-inline-start: 10px; vertical-align: -1px;
+  border: 2px solid var(--stroke-strong); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .notice.loading::after { animation: none; } }

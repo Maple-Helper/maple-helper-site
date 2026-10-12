@@ -31,11 +31,12 @@ const LEVEL = `if(toFloat(properties.char_level) > 0, concat(toString(toInt(floo
     '-', toString(toInt(floor(toFloat(properties.char_level) / 10)) * 10 + 9)), '')`;
 const TOP = "ORDER BY count() DESC, v LIMIT 50";
 
-/* each install once, with the value of `expr` on its latest event of the last 30 days */
+/* each install once, with the value of `expr` on its latest "running" ping of the last 30 days (a ping always
+   carries the app's context; other events may not) */
 const perInstall = (dim, expr) => `
     SELECT '${dim}', v, count() FROM (
       SELECT distinct_id, argMax(${expr}, timestamp) AS v FROM events
-      WHERE ${CLEAN} AND timestamp > now() - INTERVAL 30 DAY GROUP BY distinct_id LIMIT 1000000
+      WHERE ${CLEAN} AND event = 'app_running' AND timestamp > now() - INTERVAL 30 DAY GROUP BY distinct_id LIMIT 1000000
     ) GROUP BY v ${TOP}`;
 const counted = (dim, ev, expr) => `
     SELECT '${dim}', ${expr} AS v, count() FROM events
@@ -95,10 +96,8 @@ const QUERIES = {
       countIf(first < ${TODAY}), countIf(first < ${TODAY} AND start_days > 1),
       countIf(first <= ${TODAY} - 7), countIf(first <= ${TODAY} - 7 AND last_start >= ${TODAY} - 6)
     FROM (
-      SELECT distinct_id, min(${DAY}) AS first,
-        uniqExactIf(${DAY}, event = 'app_started') AS start_days,
-        maxIf(${DAY}, event = 'app_started') AS last_start
-      FROM events WHERE ${CLEAN} GROUP BY distinct_id LIMIT 1000000
+      SELECT distinct_id, min(${DAY}) AS first, uniqExact(${DAY}) AS start_days, max(${DAY}) AS last_start
+      FROM events WHERE ${CLEAN} AND event = 'app_started' GROUP BY distinct_id LIMIT 1000000
     )`,
   per_install: [
     perInstall("version", V),
@@ -129,7 +128,7 @@ const QUERIES = {
 const num = (v) => Number(v) || 0;
 
 /* runs named queries 3 at a time (PostHog runs at most 3 of a project at once and queues the rest) */
-async function pool(queries, hogql) {
+async function pool(queries, hogql, deadline = Date.now() + 45000) {
   const names = Object.keys(queries);
   const results = {};
   const errors = [];
@@ -137,15 +136,18 @@ async function pool(queries, hogql) {
   async function worker() {
     while (next < names.length) {
       const n = names[next++];
-      try { results[n] = await hogql(queries[n]); } catch (e) { errors.push(`${n}: ${e.message}`); }
+      if (Date.now() > deadline) { errors.push(`${n}: skipped, out of time`); continue; }
+      try { results[n] = await hogql(queries[n], deadline); } catch (e) { errors.push(`${n}: ${e.message}`); }
     }
   }
   await Promise.all([worker(), worker(), worker()]);
   return { results, errors };
 }
 
-async function run(hogql) {
-  const { results: res, errors } = await pool(QUERIES, hogql);
+async function run(hogql, extra = {}) {
+  /* the app's queries and the caller's (the site's) share one pool of 3 */
+  const { results: all, errors } = await pool({ ...QUERIES, ...extra }, hogql);
+  const res = all;
 
   const s = (res.summary && res.summary[0]) || null;
   const r = (res.retention && res.retention[0]) || null;
@@ -158,7 +160,9 @@ async function run(hogql) {
   for (const [d, c] of res.first_seen || []) firstSeen[String(d).slice(0, 10)] = num(c);
 
   return {
+    extra: Object.fromEntries(Object.keys(extra).map((k) => [k, all[k]])),
     errors,
+    failed: errors.map((e) => e.split(":")[0]),
     timezone: TZ,
     summary: s ? {
       online: num(s[0]), today: num(s[1]), week: num(s[2]), month: num(s[3]), ever: num(s[4]),
@@ -169,13 +173,14 @@ async function run(hogql) {
       retries: num(s[21]), started: num(s[22]),
     } : null,
     retention: r ? { before: num(r[0]), cameBack: num(r[1]), week: num(r[2]), activeWeek: num(r[3]) } : null,
-    daily: (res.daily || []).map((x) => {
+    daily: !res.daily ? null : res.daily.map((x) => {
       const day = String(x[0]).slice(0, 10);
-      return { day, players: num(x[1]), questions: num(x[2]), newInstalls: num(x[3]), updates: num(x[4]), firstSeen: firstSeen[day] || 0 };
+      return { day, players: num(x[1]), questions: num(x[2]), newInstalls: num(x[3]), updates: num(x[4]),
+        firstSeen: res.first_seen ? firstSeen[day] || 0 : null };
     }),
-    hourly: (res.hourly || []).map((x) => ({ hour: x[0], online: num(x[1]) })),
+    hourly: res.hourly ? res.hourly.map((x) => ({ hour: x[0], online: num(x[1]) })) : null,
     lists,
-    recent: (res.recent || []).map((x) => ({
+    recent: !res.recent ? null : res.recent.map((x) => ({
       at: x[0], event: x[1], who: x[2], version: x[3], os: x[4], answeredBy: x[5], country: x[6], job: x[7],
       level: x[8], window: x[9], error: x[10], minutes: x[11],
     })),
