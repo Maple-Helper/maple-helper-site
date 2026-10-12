@@ -296,7 +296,9 @@ async function hogql(host, project, key, query) {
   const r = await fetchWithTimeout(`${host}/api/projects/${project}/query/`, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ query: { kind: "HogQLQuery", query }, name: "maplehelper-admin" }),
+    /* force_blocking: PostHog otherwise answers a repeated query from its own cache, minutes old (found in the
+       audit: a fresh event was missing); the dashboard keeps its own 2-minute snapshot instead */
+    body: JSON.stringify({ query: { kind: "HogQLQuery", query }, name: "maplehelper-admin", refresh: "force_blocking" }),
   }, 20000);
   if (!r.ok) throw new Error(`PostHog ${r.status}: ${(await r.text()).slice(0, 200)}`);
   return (await r.json()).results || [];

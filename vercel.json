@@ -2,7 +2,8 @@
   "redirects": [
     { "source": "/en", "destination": "/", "permanent": true },
     { "source": "/en/", "destination": "/", "permanent": true },
-    { "source": "/admin", "destination": "/admin/", "permanent": false }
+    { "source": "/admin", "destination": "/admin/", "permanent": false },
+    { "source": "/admin/players", "destination": "/admin/players/", "permanent": false }
   ],
   "headers": [
     {
