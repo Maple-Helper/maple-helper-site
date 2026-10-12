@@ -181,3 +181,20 @@ tr:last-child td { border-bottom: 0; }
   .hero-tiles .tile .value { font-size: 32px; }
   .top-actions .auto { display: none; }
 }
+
+/* ---------------------------------------------------------------- explanations */
+.brand-title { font-size: 16px; font-weight: 400; margin: 0; }
+details.help { display: inline-block; margin-inline-start: 6px; vertical-align: 1px; }
+details.help summary { list-style: none; cursor: pointer; color: var(--faint); font-size: 13px; line-height: 1; border-radius: 50%; }
+details.help summary::-webkit-details-marker { display: none; }
+details.help summary:hover, details.help[open] summary { color: var(--accent-text); }
+details.help summary:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+details.help .help-text {
+  display: block; margin-top: 8px; font-size: 13px; font-weight: 400; line-height: 1.6; color: var(--text);
+  background: var(--bg); border: 1px solid var(--stroke); border-radius: 10px; padding: 10px 12px; white-space: normal;
+}
+.tile details.help[open], .card-head details.help[open] { display: block; margin-inline-start: 0; }
+.guide-item { padding: 10px 0; border-bottom: 1px solid var(--stroke); }
+.guide-item:last-child { border-bottom: 0; }
+.guide-item h3 { font-size: 15px; margin-bottom: 4px; }
+.guide-item .note { max-width: none; line-height: 1.7; color: var(--text); }
