@@ -2,7 +2,7 @@
 const auth = require("../_lib/auth");
 const sources = require("../_lib/sources");
 
-/* One snapshot per function instance for a minute: the dashboard refreshes itself and
+/* One snapshot per function instance for 2 minutes: the dashboard refreshes itself and
    several managers may have it open, but GitHub (60 calls/hour without a token) and
    PostHog's query API shouldn't be hit on every request. */
 const TTL_MS = 2 * 60 * 1000;   // ~10 PostHog queries a refresh; its limit is 2400 an hour
