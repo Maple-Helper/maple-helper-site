@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,12 +35,11 @@
     <div class="wrap topbar-in">
       <a class="brand" href="/" title="maplehelper.app">
         <img src="/assets/img/icon-64.png" width="28" height="28" alt="">
-        <span>Maple Helper <b>admin</b></span>
+        <h1 class="brand-title">Maple Helper <b>admin</b></h1>
       </a>
       <div class="top-actions">
         <span id="updated" class="muted small" aria-live="polite"></span>
         <label class="small auto"><input type="checkbox" id="auto" checked> <span data-i18n="auto_refresh">Auto-refresh</span></label>
-        <a class="btn ghost" href="/admin/players/" data-i18n="players_page">Players (0.18.1+)</a>
         <button class="btn ghost lang-btn" type="button">עברית</button>
         <button id="refresh" class="btn ghost" type="button" data-i18n="refresh">Refresh</button>
         <button id="logout" class="btn ghost" type="button" data-i18n="sign_out">Sign out</button>
@@ -49,7 +48,7 @@
   </header>
 
   <main class="wrap">
-    <div id="notices"></div>
+    <div id="notices" role="status"></div>
 
     <section aria-labelledby="h-now">
       <h2 id="h-now" data-i18n="right_now">Right now</h2>
@@ -95,6 +94,11 @@
         <div class="card-head"><h3 data-i18n="deploys">Site deployments</h3><span class="muted small">Vercel</span></div>
         <div id="deploys"></div>
       </div>
+    </section>
+
+    <section aria-labelledby="h-guide">
+      <h2 id="h-guide" data-i18n="guide">Guide to every number</h2>
+      <div class="card" id="guide"></div>
     </section>
 
     <section aria-labelledby="h-feed">

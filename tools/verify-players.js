@@ -1,4 +1,4 @@
-/* Re-counts every number of the clean players page (/admin/players/, app 0.18.1+) from PostHog's raw events.
+/* Re-counts every player and app number of the dashboard (/admin/, app 0.18.1+) from PostHog's raw events.
 
    node tools/verify-players.js        (needs POSTHOG_PERSONAL_API_KEY; POSTHOG_PROJECT_ID defaults to 643525)
 
@@ -63,7 +63,8 @@ function check(name, page, raw) {
   const page = await players.run(q);
   if (page.errors.length) console.log("page query errors:", page.errors);
   const all_ = await all(until);
-  const E = all_.filter((e) => !(e.p.frozen === false || e.p.frozen === "false") && vnum(e.p.app_version) >= players.MIN_VERSION);
+  const SINCE = Date.parse("2026-10-12T00:00:00Z");
+  const E = all_.filter((e) => e.at >= SINCE && !(e.p.frozen === false || e.p.frozen === "false") && vnum(e.p.app_version) >= players.MIN_VERSION);
   console.log(`raw: ${all_.length} app events since 2026-10-01, ${E.length} of them 0.18.1+ and not development\n`);
 
   const ilDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -82,7 +83,10 @@ function check(name, page, raw) {
   check("new installs", s.newInstalls, ids(fresh));
   check("new installs today", s.newInstallsToday, ids(fresh.filter((e) => e.day === today)));
   check("updates", s.updates, ev("app_updated").length);
-  const qa = ev("question_asked");
+  const retries = ev("question_asked").filter((e) => yes(e.p.retry));
+  const qa = ev("question_asked").filter((e) => !yes(e.p.retry));
+  check("retries", s.retries, retries.length);
+  check("installs that started the app", s.started, ids(ev("app_started")));
   check("questions", s.questions, qa.length);
   check("questions today", s.questionsToday, qa.filter((e) => e.day === today).length);
   check("questions with a screenshot", s.questionsWithScreenshot, qa.filter((e) => yes(e.p.screenshot)).length);
@@ -105,7 +109,7 @@ function check(name, page, raw) {
   for (const r of page.daily) {
     const list = byDay[r.day] || [];
     check(`${r.day} players`, r.players, ids(list));
-    check(`${r.day} questions`, r.questions, list.filter((e) => e.event === "question_asked").length);
+    check(`${r.day} questions`, r.questions, list.filter((e) => e.event === "question_asked" && !yes(e.p.retry)).length);
     check(`${r.day} new installs`, r.newInstalls, ids(list.filter((e) => e.event === "app_started" && yes(e.p.fresh_install))));
     check(`${r.day} updates`, r.updates, list.filter((e) => e.event === "app_updated").length);
     check(`${r.day} first seen`, r.firstSeen, Object.values(first).filter((d) => d === r.day).length);
@@ -114,12 +118,16 @@ function check(name, page, raw) {
 
   /* retention */
   const span = {};
-  E.forEach((e) => { const x = (span[e.id] = span[e.id] || { first: e.day, last: e.day, days: new Set() }); x.days.add(e.day); if (e.day < x.first) x.first = e.day; if (e.day > x.last) x.last = e.day; });
+  E.forEach((e) => {
+    const x = (span[e.id] = span[e.id] || { first: e.day, starts: new Set(), lastStart: "" });
+    if (e.day < x.first) x.first = e.day;
+    if (e.event === "app_started") { x.starts.add(e.day); if (e.day > x.lastStart) x.lastStart = e.day; }
+  });
   const S = Object.values(span);
-  check("came back", [page.retention.before, page.retention.cameBack],
-    [S.filter((x) => x.first < today).length, S.filter((x) => x.first < today && x.days.size > 1).length]);
+  check("came back (app started on 2+ days)", [page.retention.before, page.retention.cameBack],
+    [S.filter((x) => x.first < today).length, S.filter((x) => x.first < today && x.starts.size > 1).length]);
   check("still active after a week", [page.retention.week, page.retention.activeWeek],
-    [S.filter((x) => x.first <= minus(today, 7)).length, S.filter((x) => x.first <= minus(today, 7) && x.last >= minus(today, 6)).length]);
+    [S.filter((x) => x.first <= minus(today, 7)).length, S.filter((x) => x.first <= minus(today, 7) && x.lastStart >= minus(today, 6)).length]);
 
   /* per-install lists: each install's value on its latest event of the last 30 days */
   const latest = {};
@@ -146,8 +154,8 @@ function check(name, page, raw) {
     E.filter((e) => e.event === evName && now - e.at < 30 * 86400e3).forEach((e) => { const v = fn(e.p); m[v] = (m[v] || 0) + 1; });
     return Object.entries(m).map(([value, c]) => ({ value, count: c })).sort((a, b) => b.count - a.count || a.value.localeCompare(b.value));
   };
-  check("list: who answered", sorted(L.answered_by), count("question_asked", (p) => str(p.answered_by)));
-  check("list: windows", sorted(L.window), count("window_opened", (p) => str(p.window)));
+  check("list: who answered", sorted(L.answered_by), count("question_asked", (p) => str(p.answered_by) + (yes(p.retry) ? " (retry)" : "")));
+  check("list: windows", sorted(L.window), count("window_opened", (p) => str(p.window).split(":")[0]));
   check("list: updated from", sorted(L.updated_from), count("app_updated", (p) => str(p.from_version)));
   check("list: crashes", sorted(L.crash), count("app_crashed", (p) => `${str(p.error)} @ ${str(p.where)}`));
   check("list: kb failures", sorted(L.kb_fail), count("kb_update_failed", (p) => str(p.reason)));

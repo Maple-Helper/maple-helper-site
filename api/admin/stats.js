@@ -8,6 +8,8 @@ const sources = require("../_lib/sources");
 const TTL_MS = 2 * 60 * 1000;   // ~10 PostHog queries a refresh; its limit is 2400 an hour
 const MIN_FORCE_MS = 30 * 1000;
 let cache = null;
+let inflight = null;
+const ERROR_TTL_MS = 15 * 1000;
 
 async function settle(name, fn) {
   try {
@@ -36,10 +38,19 @@ module.exports = async function stats(req, res) {
     });
   }
 
+  /* a snapshot with failed parts is kept 15 s only, so a busy moment at PostHog is retried soon; two requests at
+     expiry share one refresh instead of each sending its own queries */
   const age = cache ? Date.now() - cache.at : Infinity;
+  const ttl = cache && cache.partial ? ERROR_TTL_MS : TTL_MS;
   const force = req.query && req.query.fresh === "1" && age > MIN_FORCE_MS;
-  if (!cache || age > TTL_MS || force) {
-    cache = { at: Date.now(), data: await snapshot() };
+  if (!cache || age > ttl || force) {
+    if (!inflight) {
+      inflight = snapshot().then((data) => {
+        const partial = !!(data.posthog && data.posthog.errors && data.posthog.errors.length) || !!(data.posthog && data.posthog.error);
+        cache = { at: Date.now(), data, partial };
+      }).finally(() => { inflight = null; });
+    }
+    await inflight;
   }
   return res.status(200).json(cache.data);
 };

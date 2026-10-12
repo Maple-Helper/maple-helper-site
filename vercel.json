@@ -1,9 +1,13 @@
 {
+  "functions": {
+    "api/admin/stats.js": { "maxDuration": 60 }
+  },
   "redirects": [
     { "source": "/en", "destination": "/", "permanent": true },
     { "source": "/en/", "destination": "/", "permanent": true },
     { "source": "/admin", "destination": "/admin/", "permanent": false },
-    { "source": "/admin/players", "destination": "/admin/players/", "permanent": false }
+    { "source": "/admin/players", "destination": "/admin/", "permanent": false },
+    { "source": "/admin/players/", "destination": "/admin/", "permanent": false }
   ],
   "headers": [
     {
