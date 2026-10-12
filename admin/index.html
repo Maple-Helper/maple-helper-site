@@ -19,11 +19,12 @@
 <main id="login" class="login" hidden>
   <form id="login-form" class="card login-card" autocomplete="on">
     <img src="/assets/img/icon-64.png" width="48" height="48" alt="">
-    <h1>Maple Helper admin</h1>
-    <p class="muted">Site managers only.</p>
-    <label for="password">Password</label>
+    <h1 data-i18n="title">Maple Helper admin</h1>
+    <p class="muted" data-i18n="managers_only">Site managers only.</p>
+    <label for="password" data-i18n="password">Password</label>
     <input id="password" name="password" type="password" autocomplete="current-password" required minlength="12">
-    <button type="submit" class="btn">Sign in</button>
+    <button type="submit" class="btn" data-i18n="sign_in">Sign in</button>
+    <button type="button" class="link lang-btn">עברית</button>
     <p id="login-error" class="error" role="alert" hidden></p>
   </form>
 </main>
@@ -38,9 +39,10 @@
       </a>
       <div class="top-actions">
         <span id="updated" class="muted small" aria-live="polite"></span>
-        <label class="small auto"><input type="checkbox" id="auto" checked> Auto-refresh</label>
-        <button id="refresh" class="btn ghost" type="button">Refresh</button>
-        <button id="logout" class="btn ghost" type="button">Sign out</button>
+        <label class="small auto"><input type="checkbox" id="auto" checked> <span data-i18n="auto_refresh">Auto-refresh</span></label>
+        <button class="btn ghost lang-btn" type="button">עברית</button>
+        <button id="refresh" class="btn ghost" type="button" data-i18n="refresh">Refresh</button>
+        <button id="logout" class="btn ghost" type="button" data-i18n="sign_out">Sign out</button>
       </div>
     </div>
   </header>
@@ -49,55 +51,53 @@
     <div id="notices"></div>
 
     <section aria-labelledby="h-now">
-      <h2 id="h-now">Right now</h2>
+      <h2 id="h-now" data-i18n="right_now">Right now</h2>
       <div class="tiles hero-tiles" id="now-tiles"></div>
     </section>
 
     <section aria-labelledby="h-dl">
-      <h2 id="h-dl">Downloads <span class="src">GitHub Releases, all time</span></h2>
+      <h2 id="h-dl"><span data-i18n="downloads">Downloads</span> <span class="src" data-i18n="downloads_src">GitHub Releases, all time</span></h2>
       <div class="tiles" id="dl-tiles"></div>
       <div id="dl-chart-host" class="grid2"></div>
-      <p class="note">The Windows installer count includes in-app updates as well as site downloads.
-        <b>Update checks</b> are Windows apps fetching <code>SHA256SUMS.txt</code> before updating themselves;
-        <b>game-data checks</b> are running apps fetching <code>kb-manifest.json</code>, a rough measure of how many installs are in use.</p>
+      <p class="note" data-i18n-html="dl_note"></p>
     </section>
 
     <section aria-labelledby="h-app">
-      <h2 id="h-app">Players and app usage <span class="src">PostHog, last 30 days</span></h2>
+      <h2 id="h-app"><span data-i18n="players_usage">Players and app usage</span> <span class="src" data-i18n="players_src">PostHog</span></h2>
       <div id="app-body"></div>
     </section>
 
     <section aria-labelledby="h-site">
-      <h2 id="h-site">Website <span class="src">anonymous visit counts, last 30 days</span></h2>
+      <h2 id="h-site"><span data-i18n="website">Website</span> <span class="src" data-i18n="website_src">anonymous visit counts</span></h2>
       <div id="site-body"></div>
     </section>
 
     <section aria-labelledby="h-gh">
-      <h2 id="h-gh">GitHub repository</h2>
+      <h2 id="h-gh" data-i18n="gh_repo">GitHub repository</h2>
       <div class="tiles" id="gh-tiles"></div>
       <div id="gh-traffic"></div>
     </section>
 
     <section aria-labelledby="h-mon">
-      <h2 id="h-mon">Monitoring</h2>
+      <h2 id="h-mon" data-i18n="monitoring">Monitoring</h2>
       <div class="grid2">
         <div class="card">
-          <div class="card-head"><h3>Uptime checks</h3><span class="muted small">checked on each refresh</span></div>
+          <div class="card-head"><h3 data-i18n="uptime_checks">Uptime checks</h3><span class="muted small" data-i18n="checked_each">checked on each refresh</span></div>
           <div id="uptime"></div>
         </div>
         <div class="card">
-          <div class="card-head"><h3>Builds and releases</h3><span class="muted small">GitHub Actions</span></div>
+          <div class="card-head"><h3 data-i18n="builds">Builds and releases</h3><span class="muted small">GitHub Actions</span></div>
           <div id="runs"></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-head"><h3>Site deployments</h3><span class="muted small">Vercel</span></div>
+        <div class="card-head"><h3 data-i18n="deploys">Site deployments</h3><span class="muted small">Vercel</span></div>
         <div id="deploys"></div>
       </div>
     </section>
 
     <section aria-labelledby="h-feed">
-      <h2 id="h-feed">Recent activity <span class="src">last 24 hours</span></h2>
+      <h2 id="h-feed"><span data-i18n="recent">Recent activity</span> <span class="src" data-i18n="last24">last 24 hours</span></h2>
       <div class="card"><div id="feed"></div></div>
     </section>
   </main>

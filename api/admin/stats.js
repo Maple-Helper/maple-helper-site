@@ -5,8 +5,8 @@ const sources = require("../_lib/sources");
 /* One snapshot per function instance for a minute: the dashboard refreshes itself and
    several managers may have it open, but GitHub (60 calls/hour without a token) and
    PostHog's query API shouldn't be hit on every request. */
-const TTL_MS = 60 * 1000;
-const MIN_FORCE_MS = 10 * 1000;
+const TTL_MS = 2 * 60 * 1000;   // ~10 PostHog queries a refresh; its limit is 2400 an hour
+const MIN_FORCE_MS = 30 * 1000;
 let cache = null;
 
 async function settle(name, fn) {
