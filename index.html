@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Maple Helper – Free chat helper for MapleStory Classic World</title>
-<meta name="description" content="Maple Helper opens over MapleStory Classic World with one click and answers in English or Hebrew: drops, monster HP, where to find anything. Free for Windows and macOS.">
+<meta name="description" content="Maple Helper opens over MapleStory Classic World and answers in English or Hebrew: drops, monster HP, where to find anything. Plus a grind tracker, real Free Market prices and play tools. Free for Windows and macOS.">
 <link rel="canonical" href="https://www.maplehelper.app/">
 <link rel="alternate" hreflang="he" href="https://www.maplehelper.app/he/">
 <link rel="alternate" hreflang="en" href="https://www.maplehelper.app/">
@@ -62,11 +62,11 @@
       "@type": "SoftwareApplication",
       "@id": "https://www.maplehelper.app/#app",
       "name": "Maple Helper",
-      "description": "A free chat helper that opens over MapleStory Classic World and answers in English or Hebrew, using the game's database and a screenshot of the game.",
+      "description": "A free chat helper that opens over MapleStory Classic World and answers in English or Hebrew, using the game's database and a screenshot of the game, with a grind tracker, real Free Market prices and play tools.",
       "url": "https://www.maplehelper.app/",
       "applicationCategory": "UtilitiesApplication",
       "applicationSubCategory": "Game companion",
-      "operatingSystem": "Windows 10, Windows 11, macOS 12+ (Apple Silicon)",
+      "operatingSystem": "Windows 10, Windows 11, macOS 14+ (Apple Silicon)",
       "inLanguage": [
         "en",
         "he"
@@ -87,7 +87,8 @@
       "image": "https://www.maplehelper.app/assets/img/icon-512.png",
       "screenshot": [
         "https://www.maplehelper.app/assets/shots/en/mano-light.webp",
-        "https://www.maplehelper.app/assets/shots/en/wishlist-light.webp"
+        "https://www.maplehelper.app/assets/shots/en/wishlist-light.webp",
+        "https://www.maplehelper.app/assets/shots/en/tracker-light.webp"
       ],
       "sameAs": [
         "https://github.com/Maple-Helper/maple-helper"
@@ -135,7 +136,7 @@
           "name": "Does it work on a Mac?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, on macOS 12 or later with Apple Silicon. MapleStory Classic World runs on Mac too, and Maple Helper finds the game window by its title."
+            "text": "Yes, on macOS 14 or later with Apple Silicon. MapleStory Classic World runs on Mac too, and Maple Helper finds the game window by its title."
           }
         },
         {
@@ -152,6 +153,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "On Windows the app updates itself in the background. On macOS a notice in the menu links to the new version. The game database updates itself on both."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the grind tracker use my AI plan?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It reads the game's pickup messages and your quick slots on your computer, with no AI and no screenshots sent anywhere. The Free Market prices it uses come from MesoWatch."
           }
         }
       ]
@@ -191,6 +200,9 @@
     <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></g></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g></symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></g></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></g></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></g></symbol>
   </defs>
 </svg>
@@ -205,6 +217,7 @@
       <ul>
         <li><a href="#how">How it works</a></li>
         <li><a href="#features">Features</a></li>
+        <li><a href="#overgame">Over the game</a></li>
         <li><a href="#tools">Play tools</a></li>
         <li><a href="#install">Install</a></li>
         <li><a href="#privacy">Privacy</a></li>
@@ -231,6 +244,7 @@
         <p class="lead">
           <strong>Maple Helper</strong> is a chat window that opens over MapleStory Classic World with one click on its icon.
           Type a question in English or Hebrew and get an answer with pictures, based on the game's database and on what's on your screen right now.
+          Over the game, a small bar shows the NPCs and monsters on your map, and a grind tracker counts your EXP, mesos, loot and potions per hour.
         </p>
         <div class="dl">
           <a class="btn" data-os="windows" href="https://github.com/Maple-Helper/maple-helper/releases/latest/download/MapleHelper-Setup.exe">
@@ -275,7 +289,7 @@
         <li class="glass reveal">
           <span class="n" aria-hidden="true">1</span>
           <h3>Open the chat</h3>
-          <p>Click the Maple Helper icon next to the clock, and the chat opens over the game. Close it to keep playing.</p>
+          <p>Click the Maple Helper icon next to the clock, or Chat on the bar over the game, and the chat opens over the game. Close it to keep playing.</p>
         </li>
         <li class="glass reveal">
           <span class="n" aria-hidden="true">2</span>
@@ -407,19 +421,81 @@
     </div>
   </section>
 
+  <!-- ============================================================ over the game -->
+  <section id="overgame" aria-labelledby="overgame-title">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="kicker">Over the game</p>
+        <h2 id="overgame-title">A bar over the game, and a grind tracker that counts for you</h2>
+        <p>A small see-through bar sits above your minimap, with what's about the map you're on. Its windows never take the keyboard from the game.</p>
+      </div>
+
+      <div class="bento">
+        <article class="tile full glass reveal">
+          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-window"/></svg></span>The bar over the game</h3>
+          <p>Chat, NPCs on map, Monsters on map, Grind tracker and Play tools, one click each. A window opened from the bar opens right under its button. Pick its glass colour, accent and transparency, or icons instead of words.</p>
+          <div class="shot bare">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="assets/shots/en/bar-dark.webp">
+              <img src="assets/shots/en/bar-light.webp" width="1850" height="144" loading="lazy" decoding="async"
+                   alt="The bar over the game: Maple Helper, Chat, NPCs on map, Monsters on map, Grind tracker and Play tools">
+            </picture>
+          </div>
+        </article>
+
+        <article class="tile full split glass reveal">
+          <div>
+            <h3><span class="ico"><svg aria-hidden="true"><use href="#i-pulse"/></svg></span>Grind tracker</h3>
+            <p>Press Start and keep playing. Maple Helper reads the game's own messages on your computer: EXP and mesos so far and per hour, the ETC and items you pick up, and the HP and MP potions you use, read off your quick slots.</p>
+            <p>Each pickup counts at whoever pays more for it, an NPC or players on the Free Market (by <a href="https://meso.watch">MesoWatch</a>), so you see your income, what the potions cost and your net profit.</p>
+            <ul class="ticks">
+              <li><span>How long to your next level at this rate</span></li>
+              <li><span>A warning when a potion runs low, with the nearest shop</span></li>
+              <li><span>The monsters you killed, and what to keep for quests and recipes</span></li>
+              <li><span>A history of every session, and the maps you grinded on side by side</span></li>
+              <li><span>No AI, and no screenshots sent anywhere</span></li>
+            </ul>
+          </div>
+          <div class="shot crop deep bare narrow">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="assets/shots/en/tracker-dark.webp">
+              <img src="assets/shots/en/tracker-light.webp" width="608" height="1580" loading="lazy" decoding="async"
+                   alt="The grind tracker card: 25 minutes, EXP and mesos so far and per hour, ETC, items and potions with their value, total income, spent on potions and net profit">
+            </picture>
+          </div>
+        </article>
+
+        <article class="tile third glass reveal">
+          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-user"/></svg></span>NPCs on map</h3>
+          <p>Every NPC on your map, inside buildings too, with its picture. Click one to ring it on the game's minimap and see which way to go, or open "How to get there".</p>
+        </article>
+
+        <article class="tile third glass reveal">
+          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-image"/></svg></span>Monsters on map</h3>
+          <p>The monsters that spawn on your map, with their picture, level, HP, EXP and how many there are.</p>
+        </article>
+
+        <article class="tile third glass reveal">
+          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-pin"/></svg></span>Hidden portals</h3>
+          <p>Blue dots on your minimap mark the map's invisible teleports, so you know where to step in. They stay out of the app's own minimap reads.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <section id="tools" aria-labelledby="tools-title">
     <div class="wrap">
       <div class="sec-head reveal">
         <p class="kicker">Beside the game</p>
         <h2 id="tools-title">Play tools: calculators and planners beside the chat</h2>
-        <p>The tools button in the chat opens a window that sits next to the game. Everything in it is worked out from the database and your character, without asking the AI or waiting.</p>
+        <p>Play tools, in the chat or on the bar over the game, opens a window that sits next to the game. Everything in it is worked out from the database and your character, without asking the AI or waiting.</p>
       </div>
 
       <div class="bento">
         <article class="tile wide split glass reveal">
           <div>
-            <h3><span class="ico"><svg aria-hidden="true"><use href="#i-tools"/></svg></span>Grind spots, grind tracker, hit &amp; damage</h3>
-            <p>The best maps for your level, ranked: hit chance, hits to kill, EXP and the kills left to level up. The grind tracker measures EXP and mesos an hour from screenshots.</p>
+            <h3><span class="ico"><svg aria-hidden="true"><use href="#i-tools"/></svg></span>Grind spots, hit &amp; damage</h3>
+            <p>The best maps for your level, ranked: hit chance, hits to kill, EXP and the kills left to level up.</p>
             <p>In the calculator, pick a monster to see the ACC you need to never miss, and one tap takes you to the way there.</p>
           </div>
           <div class="shot crop">
@@ -457,7 +533,7 @@
 
         <article class="tile half glass reveal">
           <h3><span class="ico"><svg aria-hidden="true"><use href="#i-star"/></svg></span>Crafting</h3>
-          <p>Six professions: the teacher, the quests, and every recipe by level, searchable by name or ingredient. Beside each ingredient: who drops it and what it sells for.</p>
+          <p>Six professions: the teacher, the quests, and every recipe by level, searchable by name or ingredient. Beside each ingredient: who drops it and what it sells for. The craft plan says what to farm and what to craft, in order, with the cost.</p>
           <div class="shot crop">
             <picture>
               <source media="(prefers-color-scheme: dark)" srcset="assets/shots/en/tools-crafting-dark.webp">
@@ -480,13 +556,13 @@
         </article>
 
         <article class="tile half glass reveal">
-          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-star"/></svg></span>Pets</h3>
-          <p>Every pet line by line: lifespan, hunger, commands to level 30 and the fastest command at each stage, its Cash Shop price, and the skills you can buy for it.</p>
+          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-cart"/></svg></span>Cash Shop and pets</h3>
+          <p>What the game's Cash Shop sells right now and for how many NX, in the game's own tabs, with what the Founder's Mystery Fashion Crate can give and each item's chance (from <a href="https://osmsdataexplorer.com">OSMS Data Explorer</a> by ohmi). Its Pets tab: lifespan, hunger, commands to level 30 and the pet skills.</p>
           <div class="shot crop">
             <picture>
               <source media="(prefers-color-scheme: dark)" srcset="assets/shots/en/tools-pets-dark.webp">
               <img src="assets/shots/en/tools-pets-light.webp" width="1190" height="1840" loading="lazy" decoding="async"
-                   alt="Pets: lifespan, hunger, commands and the Cash Shop skills">
+                   alt="The Cash Shop's Pets tab: lifespan, hunger, commands and the pet skills">
             </picture>
           </div>
         </article>
@@ -505,12 +581,12 @@
 
         <article class="tile third glass reveal">
           <h3><span class="ico"><svg aria-hidden="true"><use href="#i-user"/></svg></span>Build plan</h3>
-          <p>The AP, SP and gear tables from your class guide, your level's row highlighted, and a table for each 2nd job.</p>
+          <p>The AP, SP and gear tables from your class guide, your level's row highlighted, a table for each 2nd job, and the community tier list for your job.</p>
         </article>
 
         <article class="tile third glass reveal">
-          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-coin"/></svg></span>Item price</h3>
-          <p>NPC prices and a live Free Market median from players' reports, for every item that trades.</p>
+          <h3><span class="ico"><svg aria-hidden="true"><use href="#i-coin"/></svg></span>Real Free Market prices</h3>
+          <p>What items actually sold for in players' shops, read by <a href="https://meso.watch">MesoWatch</a>: the usual price, the last sale and how many sold, and where to buy it cheapest. Next to the NPC prices, every 15 minutes.</p>
         </article>
 
         <article class="tile third glass reveal">
@@ -535,7 +611,7 @@
           <h3>Requirements</h3>
           <ul class="req">
             <li><span class="ico"><svg aria-hidden="true"><use href="#i-monitor"/></svg></span>
-              <div><b>Windows 10 or 11, or macOS 12 or later</b>
+              <div><b>Windows 10 or 11, or macOS 14 or later</b>
               <span>On a Mac you need Apple Silicon (M1 or newer).</span></div></li>
             <li><span class="ico"><svg aria-hidden="true"><use href="#i-chat"/></svg></span>
               <div><b>An AI account: Claude, ChatGPT, Gemini or Grok</b>
@@ -597,11 +673,13 @@
           <h3><span class="ico"><svg aria-hidden="true"><use href="#i-lock"/></svg></span>Your data</h3>
           <div class="flow">
             <div><span class="ico"><svg aria-hidden="true"><use href="#i-drive"/></svg></span>
-              <p><b>Stays on your computer</b><span>Settings, characters, chat history, voice recordings and the game database. No ads, no tracking.</span></p></div>
+              <p><b>Stays on your computer</b><span>Settings, characters, chat history, grind sessions, voice recordings and the game database. No ads.</span></p></div>
             <div><span class="ico"><svg aria-hidden="true"><use href="#i-send"/></svg></span>
               <p><b>Goes to the AI you chose, only when you ask</b><span>Your question, a screenshot of the game window, and the context needed to answer: your character's details, the recent conversation and short summaries of earlier ones. When you close a chat, it may be sent once more to summarize it for next time.</span></p></div>
             <div><span class="ico"><svg aria-hidden="true"><use href="#i-zap"/></svg></span>
-              <p><b>Never sent at all</b><span>Instant answers from the database and voice transcription. Both happen on your computer.</span></p></div>
+              <p><b>Never sent at all</b><span>Instant answers from the database, voice transcription and the grind tracker. They all happen on your computer.</span></p></div>
+            <div><span class="ico"><svg aria-hidden="true"><use href="#i-info"/></svg></span>
+              <p><b>Anonymous usage stats</b><span>So we know how many people use the app and which parts: when it starts, the windows and features you open, the app version, your OS and language, your AI provider and your character's job and level, under a random id made for your install (PostHog). Never your questions, answers, screenshots, voice, character names or keys. The environment variable MAPLEHELPER_NO_TELEMETRY=1 turns them off.</span></p></div>
           </div>
         </div>
 
@@ -645,7 +723,7 @@
         </details>
         <details class="glass reveal">
           <summary><span>Does it work on a Mac?</span></summary>
-          <div class="a"><p>Yes, on macOS 12 or later with Apple Silicon. MapleStory Classic World runs on Mac too, and Maple Helper finds the game window by its title.</p></div>
+          <div class="a"><p>Yes, on macOS 14 or later with Apple Silicon. MapleStory Classic World runs on Mac too, and Maple Helper finds the game window by its title.</p></div>
         </details>
         <details class="glass reveal">
           <summary><span>What exactly is sent to the AI?</span></summary>
@@ -654,6 +732,10 @@
         <details class="glass reveal">
           <summary><span>How do I update?</span></summary>
           <div class="a"><p>On Windows the app updates itself in the background. On macOS a notice in the menu links to the new version. The game database updates itself on both.</p></div>
+        </details>
+        <details class="glass reveal">
+          <summary><span>Does the grind tracker use my AI plan?</span></summary>
+          <div class="a"><p>No. It reads the game's pickup messages and your quick slots on your computer, with no AI and no screenshots sent anywhere. The Free Market prices it uses come from <a href="https://meso.watch">MesoWatch</a>.</p></div>
         </details>
       </div>
     </div>
@@ -692,7 +774,7 @@
         <li><a href="he/" hreflang="he" lang="he" dir="rtl">עברית</a></li>
       </ul>
     </div>
-    <small>Game data and images courtesy of <a href="https://meowdb.com">NiaMeowDB (meowdb.com)</a>. Speech recognition: <a href="https://huggingface.co/ivrit-ai">ivrit.ai</a>. Font: Rubik.</small>
+    <small>Game data and images courtesy of <a href="https://meowdb.com">NiaMeowDB (meowdb.com)</a>. Free Market prices: <a href="https://meso.watch">MesoWatch</a>. Cash Shop data: <a href="https://osmsdataexplorer.com">OSMS Data Explorer</a> by ohmi. Speech recognition: <a href="https://huggingface.co/ivrit-ai">ivrit.ai</a>. Font: Rubik.</small>
     <small>Maple Helper is an unofficial companion for MapleStory Classic World and is not affiliated with or endorsed by Nexon. MapleStory is a trademark of Nexon. Game assets belong to their rights holders.</small>
   </div>
 </footer>
