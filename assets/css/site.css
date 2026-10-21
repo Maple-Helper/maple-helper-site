@@ -536,6 +536,19 @@ section { padding-block: clamp(40px, 6vw, 72px); }
 .tile.wide.split .crop { max-height: 320px; }
 .tile .crop.tiles { max-height: 210px; }
 .tile .crop.tiles img { margin-top: -86%; border: 0; }
+/* full-width tiles (the bar over the game, the grind tracker), and pictures that bring their own glass frame */
+.tile.full { grid-column: span 6; }
+.tile.full.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.tile.full.split .shot { margin: 0; padding: 0; }
+.tile .bare img { box-shadow: none; border: 0; border-radius: 0; }
+.tile .crop.bare { border-radius: 0; }
+.tile .crop.deep { max-height: 560px; }
+.tile .narrow img { max-width: 340px; margin-inline: auto; }
 .tile ul.ticks { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--muted); font-size: 16px; }
 .tile ul.ticks li { display: flex; gap: 10px; align-items: baseline; }
 .tile ul.ticks li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); transform: translateY(-2px); }
@@ -553,7 +566,7 @@ section { padding-block: clamp(40px, 6vw, 72px); }
 }
 @media (max-width: 640px) {
   .tile.third { grid-column: span 6; }
-  .tile.wide.split { grid-template-columns: 1fr; }
+  .tile.wide.split, .tile.full.split { grid-template-columns: 1fr; }
   .tile { padding: 22px; }
 }
 
